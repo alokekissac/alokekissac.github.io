@@ -1,4 +1,4 @@
-import { placeholder, type Content } from "@/lib/content";
+import type { Content } from "@/lib/content";
 
 export type TimelineKind = "work" | "education";
 
@@ -26,7 +26,6 @@ export const experience: TimelineEntry[] = [
       "Remote machine learning internship focused on applying the end-to-end ML workflow to guided project work.",
     highlights: [
       "Prepared and explored datasets, then trained and evaluated supervised learning models in Python.",
-      placeholder("Add the specific project, dataset or models you worked on"),
     ],
   },
   {
