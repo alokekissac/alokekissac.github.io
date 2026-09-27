@@ -20,7 +20,7 @@ export const site = {
   location: "Dublin, Ireland",
   available: true,
   links: {
-    email: "alokeissac@gmail.com" as Content,
+    email: "alokekissac@gmail.com" as Content,
     github: "https://github.com/alokekissac" as Content,
     linkedin: "https://www.linkedin.com/in/alokekisssac/" as Content,
   },

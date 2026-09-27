@@ -1,6 +1,6 @@
-import { placeholder, type Content } from "@/lib/content";
+import type { Content } from "@/lib/content";
 
-export type ProjectVisual = "rag" | "waste" | "tour" | "travelogue";
+export type ProjectVisual = "rag" | "waste" | "tour" | "travelogue" | "rl" | "coverage";
 
 export type ArchitectureLane = {
   title: string;
@@ -13,6 +13,8 @@ export type Project = {
   description: string;
   tech: string[];
   visual: ProjectVisual;
+  /** Real screenshot in /public (shown instead of the drawn visual when present). */
+  image?: { src: string; alt: string };
   /** Hue (0–360) used for the project's accent glow. */
   hue: number;
   year: Content;
@@ -28,169 +30,282 @@ export type Project = {
   results: Content[];
 };
 
-/*
- * NOTE: Overview / problem / solution / architecture text is drafted from the
- * one-line project descriptions. Review each for accuracy. Anything that would
- * need real numbers or specifics (results, challenges, dates, links) is a
- * placeholder on purpose.
- */
+const GH = "https://github.com/alokekissac";
+
 export const projects: Project[] = [
   {
     slug: "advanced-rag-system",
     title: "Advanced RAG System",
     description:
-      "Production-oriented Retrieval-Augmented Generation system designed for trustworthy question answering over private documents.",
-    tech: ["Python", "LLMs", "RAG", "Vector Database", "Embeddings", "FastAPI"],
+      "Trustworthy question answering over private documents: hybrid retrieval, cited answers, abstention and prompt-injection guardrails, measured with an evaluation harness.",
+    tech: ["Python", "FastAPI", "RAG", "Embeddings", "Vector Search", "BM25", "Gemini", "pytest"],
     visual: "rag",
+    image: { src: "/projects/advanced-rag-system.jpg", alt: "Advanced RAG System: a cited answer with the retrieved evidence panel" },
     hue: 228,
-    year: placeholder("Year"),
-    githubUrl: placeholder("GitHub repository URL"),
-    liveUrl: placeholder("Live demo URL (remove if none)"),
+    year: "2026",
+    githubUrl: `${GH}/Advanced-RAG-System`,
     overview:
-      "A retrieval-augmented generation service that answers questions over a private document collection, grounding each answer in passages retrieved from those documents rather than in the model's general knowledge.",
+      "A retrieval-augmented generation service that answers questions over a private document collection. Every sentence of an answer is cited to a retrieved passage, citations are verified against their source, and the system says so when the documents don't contain the answer.",
     problem:
-      "Large language models answer fluently but can't see private documents, and when they don't know something they may still produce a confident answer. For internal knowledge, an answer is only useful if it can be traced back to a source.",
+      "LLMs answer fluently but can't see private documents, and when they don't know something they still produce a confident answer. Documents can also contain instructions aimed at the model. For internal knowledge, an answer is only useful if it can be traced to a source and the system knows when to stay silent.",
     solution:
-      "Documents are ingested, split into chunks and embedded into a vector database. At question time the most relevant chunks are retrieved and passed to the LLM as context, and the whole pipeline is exposed through a FastAPI service so it can sit behind any interface.",
+      "Documents are chunked by heading and indexed twice: BM25 for exact terms and numbers, and dense embeddings for meaning. The two rankings are fused with Reciprocal Rank Fusion and diversified with MMR. Guardrails screen retrieved text for prompt injection and score how well the evidence covers the question; low coverage means abstaining. Answers come from Gemini with a grounded prompt, or from an extractive answerer that quotes sources when no key is set. The whole pipeline sits behind a FastAPI service with a web UI.",
     architecture: [
       {
         title: "Ingestion",
         steps: [
-          { label: "Documents", detail: "Private source files" },
-          { label: "Chunking", detail: "Split into passages" },
-          { label: "Embeddings", detail: "Vectorise each chunk" },
-          { label: "Vector DB", detail: "Index for similarity search" },
+          { label: "Documents", detail: "PDF, Markdown, text" },
+          { label: "Chunking", detail: "Heading-aware, with overlap" },
+          { label: "Index", detail: "BM25 + dense embeddings" },
+          { label: "Vector store", detail: "Cosine similarity" },
         ],
       },
       {
         title: "Query",
         steps: [
-          { label: "Question", detail: "Request via FastAPI" },
-          { label: "Retrieval", detail: "Top-k relevant chunks" },
-          { label: "LLM", detail: "Answer from retrieved context" },
-          { label: "Response", detail: "Grounded answer" },
+          { label: "Question", detail: "FastAPI · optional multi-query rewrite" },
+          { label: "Hybrid retrieval", detail: "RRF fusion + MMR" },
+          { label: "Guardrails", detail: "Injection screen · confidence gate" },
+          { label: "Generation", detail: "Gemini or extractive, cited" },
+          { label: "Verification", detail: "Citations checked against sources" },
         ],
       },
     ],
     features: [
-      "Document ingestion and chunking pipeline",
-      "Embedding-based semantic search over a vector database",
-      "Answers generated from retrieved context",
-      "FastAPI service layer",
-      placeholder("Add any extra features — e.g. source citations, re-ranking, evaluation"),
+      "Hybrid retrieval: BM25 and embeddings fused with Reciprocal Rank Fusion, diversified with MMR",
+      "Every answer sentence cited, and each citation verified against the source text",
+      "Abstains (\u201cI couldn't find this in the documents\u201d) when evidence doesn't cover the question",
+      "Detects and strips prompt-injection text hidden in documents, and warns the user",
+      "Works with Gemini (LLM answers, embeddings, query rewriting) or fully offline",
+      "Web UI with an evidence panel, retrieval-mode switch and bring-your-own-documents upload",
+      "Evaluation harness plus 21 pytest tests",
     ],
-    challenges: [placeholder("Describe the main technical challenges and how you approached them")],
-    results: [placeholder("Add real, measured results (accuracy, latency, evaluation scores) — or remove")],
+    challenges: [
+      "Calibrating when to abstain: coverage is IDF-weighted so a question hinging on a word no document contains scores low, and the threshold was chosen on a dev split and reported on a held-out test split.",
+      "Paraphrases: local embeddings can't learn that \u201ccomputer\u201d means \u201claptop\u201d from a small corpus, so the system abstains rather than guessing. Gemini embeddings and query rewriting close that gap.",
+      "Keeping it deployable on serverless: small dependencies, a fast in-memory index, and graceful fallback to BM25 when the embedding API is unavailable.",
+    ],
+    results: [
+      "95.7% answer accuracy on held-out test questions (extractive mode, no LLM)",
+      "100% correct abstentions on questions the documents don't answer",
+      "100% of cited sentences supported by their cited source",
+      "Prompt-injection test document detected and ignored",
+      "About 2 ms per question to retrieve and answer on the demo corpus",
+    ],
   },
   {
     slug: "ai-waste-management",
-    title: "AI-Powered Waste Management",
-    description: "Predictive modelling system for sustainable landfill waste forecasting.",
-    tech: ["Python", "Machine Learning", "Data Analysis", "Predictive Modelling"],
+    title: "AI-Powered Landfill Waste Forecasting",
+    description:
+      "MSc research project: five models compared on 127K EPA records to forecast state-level landfill waste, with the best deployed as a web dashboard.",
+    tech: ["Python", "scikit-learn", "XGBoost", "PyTorch", "pandas", "Flask", "Chart.js"],
     visual: "waste",
+    image: { src: "/projects/ai-waste-management.jpg", alt: "WasteSight AI forecasting dashboard" },
     hue: 158,
-    year: placeholder("Year"),
-    githubUrl: placeholder("GitHub repository URL"),
+    year: "2026",
+    githubUrl: `${GH}/AI-Landfill-Waste-Forecasting`,
     liveUrl: "https://ai-landfill-waste-forecasting.vercel.app/",
     overview:
-      "A machine-learning project that forecasts landfill waste so that planning decisions can be based on expected volumes rather than on past totals alone.",
+      "An end-to-end forecasting pipeline for US landfill waste, built as my MSc in Artificial Intelligence applied research project. It goes from raw facility records to a deployed dashboard that forecasts any state's landfilled waste up to 2035.",
     problem:
-      "Landfill capacity and waste-handling resources are planned in advance. Without a reasonable forecast of future waste, planning tends to be reactive, which makes sustainable waste management harder.",
+      "Landfill capacity is finite and new capacity takes years to permit. Under-forecasting means landfills run out of space; over-forecasting wastes money on unneeded expansion. These decisions are made state by state, yet most AI-for-waste research focuses on sorting and collection and reports no comparable error metrics.",
     solution:
-      "Historical waste data is explored and prepared, then used to train predictive models that estimate future landfill waste. The results are analysed and visualised to support planning.",
+      "127,033 EPA records were cleaned and aggregated into state-year series with a log-transformed target, lag features and rolling means. Linear Regression, Random Forest, Gradient Boosting, XGBoost and a two-layer PyTorch LSTM were trained on the same split and compared on RMSE, MAE and R². The winner is served with its encoders and scalers by a Flask API and dashboard.",
     architecture: [
       {
         title: "Pipeline",
         steps: [
-          { label: "Raw data", detail: placeholder("Dataset source") },
-          { label: "Analysis", detail: "Cleaning & exploration" },
-          { label: "Features", detail: "Model-ready inputs" },
-          { label: "Model", detail: "Predictive modelling" },
-          { label: "Forecast", detail: "Waste estimates" },
+          { label: "Raw data", detail: "EPA dataset · 127K rows" },
+          { label: "Cleaning", detail: "Artefacts, outliers, log1p" },
+          { label: "Features", detail: "Lags 1–3 + rolling mean" },
+          { label: "Models", detail: "LR · RF · GB · XGBoost · LSTM" },
+          { label: "Forecast", detail: "Flask API + dashboard" },
         ],
       },
     ],
     features: [
-      "Exploratory data analysis of historical waste data",
-      "Data preparation and feature engineering",
-      "Predictive models for waste forecasting",
-      "Visualisation of forecasts for planning",
+      "Cleaning of 127,033 records into 115,940 valid rows across 45 states (1938–2023)",
+      "Feature engineering: lagged values and 3-year rolling means of log waste mass",
+      "Five model families compared with one shared evaluation function",
+      "Flask REST API and Chart.js dashboard with state-level forecasts to 2035",
     ],
-    challenges: [placeholder("Describe data or modelling challenges")],
-    results: [placeholder("Add real model evaluation results — or remove")],
+    challenges: [
+      "State totals differ by more than three orders of magnitude, so the target was log-transformed (skew from 34.35 to −0.47).",
+      "Explaining why the simplest model won: with log targets and lag features the relationship is close to linear, and the 716-sample dataset is too small for the LSTM to shine.",
+    ],
+    results: [
+      "Linear Regression: R² 0.9861, RMSE 1.05M tons, MAE 0.58M tons on the held-out test set",
+      "About 22% lower RMSE than Random Forest and Gradient Boosting, and 81% lower than the LSTM",
+      "Deployed as a live forecasting dashboard",
+    ],
+  },
+  {
+    slug: "rl-traffic-signal-control",
+    title: "RL Traffic Signal Control",
+    description:
+      "Q-learning and Monte Carlo agents learn when to switch a traffic light, benchmarked against the exact optimal policy, with a 3D browser simulator.",
+    tech: ["Python", "Reinforcement Learning", "Gymnasium", "NumPy", "Flask", "Three.js"],
+    visual: "rl",
+    image: { src: "/projects/rl-traffic-signal-control.jpg", alt: "3D traffic intersection simulator controlled by a Q-learning agent" },
+    hue: 190,
+    year: "2026",
+    githubUrl: `${GH}/RL-Traffic-Signal-Control`,
+    liveUrl: "https://rl-traffic-signal-control.vercel.app/",
+    overview:
+      "A reinforcement-learning study of a single intersection: at each tick an agent decides which road gets the green. Tabular Q-learning and first-visit Monte Carlo control learn the policy from experience, and both are judged against the mathematically optimal policy.",
+    problem:
+      "Fixed-time signals switch on a timer whatever the traffic is doing. The question is whether a signal can learn when to switch purely from experience, and how close a learned policy gets to the best possible one.",
+    solution:
+      "A Gymnasium environment models two queues with random arrivals and departures and a reward of minus the cars waiting. Because the state space is small, the MDP is also solved exactly with value iteration. Agents are trained on 5 seeds and evaluated on 2,000 identical held-out episodes against random, fixed-time and longest-queue baselines.",
+    architecture: [
+      {
+        title: "Study",
+        steps: [
+          { label: "Environment", detail: "Gymnasium MDP · 24 states" },
+          { label: "Agents", detail: "Q-learning · Monte Carlo" },
+          { label: "Ground truth", detail: "Value iteration" },
+          { label: "Evaluation", detail: "5 seeds · common random numbers" },
+          { label: "Simulator", detail: "Three.js 3D + JSON API" },
+        ],
+      },
+    ],
+    features: [
+      "Custom Gymnasium environment with an exact transition model",
+      "Q-learning and first-visit Monte Carlo control, plus the exact optimum by value iteration",
+      "Fair evaluation: multiple seeds, held-out episodes, shared random traffic",
+      "3D intersection simulator in the browser, with switchable controllers and live Q-values",
+      "Flask JSON API with input validation and 18 tests",
+    ],
+    challenges: [
+      "Discovered the reward could be gamed: cars turned away from a full queue cost nothing, so the optimal policy starves the short road. Added an overflow-aware reward that turns away 40% fewer cars.",
+    ],
+    results: [
+      "Q-learning comes within 0.009 cars of the exact optimum",
+      "37% fewer cars waiting than fixed-time signals",
+      "Q-learning is far more consistent across seeds than Monte Carlo (sd 0.009 vs 0.173)",
+    ],
+  },
+  {
+    slug: "covigo",
+    title: "Covigo: Coverage Navigator",
+    description:
+      "Walk every street in an area and miss none: route planning over OpenStreetMap, GPS turn-by-turn guidance and a Gemini voice assistant.",
+    tech: ["JavaScript", "Leaflet", "OpenStreetMap", "Gemini", "PWA", "Vercel"],
+    visual: "coverage",
+    hue: 140,
+    year: "2026",
+    githubUrl: `${GH}/Covigo`,
+    overview:
+      "A web app for canvassers, leaflet distributors and survey teams that need to cover every street in an area. Draw a zone, and Covigo plans a route through every walkable street, guides you with GPS and tracks what you've covered.",
+    problem:
+      "Ordinary navigation apps route you from A to B. Covering every street in a zone without doubling back or missing any is a different problem, and people doing it usually rely on paper maps and memory.",
+    solution:
+      "Streets are pulled from the Overpass API and turned into an intersection graph. A greedy planner orders them with a sweep direction and dead-end priority. A bearing-based engine gives turn-by-turn instructions, GPS points mark streets done, and progress is saved offline. A serverless function proxies Gemini so the API key never reaches the browser.",
+    architecture: [
+      {
+        title: "Flow",
+        steps: [
+          { label: "Draw zone", detail: "Leaflet.Draw" },
+          { label: "Streets", detail: "Overpass API" },
+          { label: "Route plan", detail: "Graph + greedy heuristic" },
+          { label: "Navigation", detail: "GPS · turn-by-turn" },
+          { label: "Assistant", detail: "Gemini via serverless proxy" },
+        ],
+      },
+    ],
+    features: [
+      "Route planning over every walkable street, with sweep direction and dead-end priority",
+      "Turn-by-turn guidance and automatic street completion from GPS",
+      "Missed-street alerts, live coverage stats and time-left estimates",
+      "Offline progress (IndexedDB) and cached map tiles (service worker)",
+      "Gemini assistant with voice input that knows your live session",
+    ],
+    challenges: [
+      "Exact coverage routing is the NP-hard Rural Postman Problem, so a fast greedy heuristic keeps planning instant in the browser for hundreds of streets.",
+      "Keeping the Gemini key server-side with a same-origin proxy, input limits and escaped output.",
+    ],
+    results: [
+      "Plans routes for hundreds of streets instantly, entirely in the browser",
+      "No build step: one HTML file plus a serverless function",
+    ],
   },
   {
     slug: "tour-planner",
-    title: "Tour Planner",
+    title: "AI Tour Planner",
     description:
-      "Full-stack intelligent tourism platform connecting travellers, tour providers, bookings, payments, reviews, multilingual content and AI-powered features.",
-    tech: ["Python", "Flask", "JavaScript", "Machine Learning", "MySQL"],
+      "Full-stack tourism platform connecting travellers, tour providers and local guides, with bookings, payments, reviews, an AI chatbot, translation and OCR.",
+    tech: ["Python", "Flask", "MySQL", "OpenAI", "OpenCV", "Android (Java)"],
     visual: "tour",
+    image: { src: "/projects/tour-planner.jpg", alt: "AI Tour Planner admin dashboard for tour packages" },
     hue: 32,
-    year: placeholder("Year"),
-    githubUrl: placeholder("GitHub repository URL"),
-    liveUrl: placeholder("Live demo URL (remove if none)"),
+    year: "2025",
+    githubUrl: `${GH}/AI-Tour-Planner`,
+    liveUrl: "https://ai-tour-planner-ucc3.vercel.app/",
     overview:
-      "A full-stack tourism platform where travellers discover and book tours, providers manage their offerings, and machine learning adds intelligent features on top of the core marketplace.",
+      "A tourism platform built during my full-stack internship at Rizz Technologies. Tour providers publish places and packages, admins review them, local guides pin useful spots, and travellers discover, book, pay for and review tours from an Android app.",
     problem:
-      "Travellers and local tour providers often connect through fragmented channels, which makes discovering, comparing, booking and reviewing tours harder than it needs to be — especially across languages.",
+      "Travellers and local tour operators usually find each other through scattered channels, and language barriers make it harder still.",
     solution:
-      "A single Flask application backed by MySQL handles traveller and provider accounts, tour listings, bookings, payments and reviews, with multilingual content and ML-powered features integrated into the experience.",
+      "One Flask application with role-based blueprints for admins, providers and guides, plus a REST API for the Android app, all backed by MySQL. AI features help travellers abroad: an OpenAI chatbot, translation into any language, and OCR that reads signs and menus from a photo.",
     architecture: [
       {
         title: "Platform",
         steps: [
-          { label: "Web client", detail: "HTML, CSS, JavaScript" },
-          { label: "Flask app", detail: "Routing & business logic" },
-          { label: "ML module", detail: "AI-powered features" },
+          { label: "Android app", detail: "Java · travellers" },
+          { label: "Web dashboards", detail: "Admin · provider · guide" },
+          { label: "Flask", detail: "Blueprints + REST API" },
+          { label: "AI services", detail: "Chatbot · translation · OCR" },
           { label: "MySQL", detail: "Users, tours, bookings" },
         ],
       },
     ],
     features: [
-      "Traveller and tour-provider roles",
-      "Tour listings and bookings",
-      "Payments flow",
-      "Reviews",
-      "Multilingual content",
-      placeholder("Name the specific AI-powered features (e.g. recommendations)"),
+      "Four roles: admin, tour provider, local guide and traveller",
+      "Places, packages, bookings, payments, ratings and reviews",
+      "AI travel chatbot, translation into any language, and photo-to-text OCR",
+      "Guides pin useful spots on a map for travellers",
+      "Demo mode with a bundled SQLite database for one-click Vercel deploys",
     ],
-    challenges: [placeholder("Describe the main challenges")],
-    results: [placeholder("Add real outcomes — or remove")],
+    challenges: [
+      "Integrating the chatbot, translation layer and database so they shared one consistent user record.",
+    ],
+    results: ["Deployed with fictional Kerala demo data and demo accounts for each role"],
   },
   {
     slug: "smart-travelogue",
     title: "Smart Travelogue",
     description:
-      "AI-assisted travel platform designed to make trip planning more personalized and intelligent.",
-    tech: ["Python", "AI", "Web Development"],
+      "Travel-journal platform: write travelogues, share trip photos and videos, and discover places, hotels and packages, from an Android app backed by a Flask API.",
+    tech: ["Python", "Flask", "MySQL", "REST API", "Android (Java)"],
     visual: "travelogue",
+    image: { src: "/projects/smart-travelogue.jpg", alt: "Smart Travelogue admin view of travellers' travelogues" },
     hue: 280,
-    year: placeholder("Year"),
-    githubUrl: placeholder("GitHub repository URL"),
+    year: "2025",
+    githubUrl: `${GH}/Smart-Travelogue`,
     overview:
-      "An AI-assisted travel platform that helps people plan trips around their own preferences instead of generic itineraries.",
+      "My BCA main project: a home for each trip. Travellers write a travelogue with photos, videos and YouTube links that others can browse for inspiration, and explore places, hotels and packages curated by an admin.",
     problem:
-      "Trip planning usually means piecing together information from many sources, and most suggestions aren't tailored to the individual traveller.",
+      "Travel memories end up scattered across camera rolls and chat groups, and trip inspiration is spread across many sites.",
     solution:
-      "A web platform built in Python that uses AI to personalise trip planning based on what the traveller is looking for.",
+      "A native Android app talks to a Flask REST API with 27 endpoints backed by MySQL. An admin dashboard manages places (with map locations), hotels, packages and notifications, and moderates travellers' content.",
     architecture: [
       {
         title: "Flow",
         steps: [
-          { label: "Preferences", detail: "Traveller input" },
-          { label: "Web app", detail: "Python back end" },
-          { label: "AI layer", detail: "Personalisation" },
-          { label: "Plan", detail: "Tailored suggestions" },
+          { label: "Android app", detail: "Java · travellers" },
+          { label: "Flask REST API", detail: "27 endpoints" },
+          { label: "Admin dashboard", detail: "Places, hotels, packages" },
+          { label: "MySQL", detail: "Users, travelogues, media" },
         ],
       },
     ],
     features: [
-      "AI-assisted, personalised trip planning",
-      "Web-based interface",
-      placeholder("Add the platform's specific features"),
+      "Travelogues with photos, videos and YouTube links",
+      "Community feed of other travellers' trips",
+      "Places, nearby places, hotels and packages, with favourites",
+      "Notifications, feedback and complaints",
     ],
-    challenges: [placeholder("Describe the main challenges")],
-    results: [placeholder("Add real outcomes — or remove")],
+    challenges: ["Handling media uploads across the Android app, API and storage."],
+    results: ["Deployed with fictional Kerala demo data and demo accounts"],
   },
 ];

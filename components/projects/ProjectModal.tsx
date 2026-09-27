@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { ArrowUpRight, X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
-import { ProjectVisual } from "@/components/projects/ProjectVisual";
+import { ProjectCover } from "@/components/projects/ProjectCover";
 import { GitHubIcon } from "@/components/ui/BrandIcons";
 import { ButtonLink } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
@@ -132,7 +132,7 @@ export default function ProjectModal({ project, onClose }: { project: Project; o
               animate={{ scale: 1 }}
               transition={{ duration: 1.2, ease: EASE_OUT }}
             >
-              <ProjectVisual kind={project.visual} hue={project.hue} />
+              <ProjectCover project={project} sizes="(min-width: 1024px) 1100px, 100vw" />
             </motion.div>
             <div className="absolute inset-0 bg-gradient-to-t from-ink-2 via-ink-2/30 to-transparent" />
           </div>
