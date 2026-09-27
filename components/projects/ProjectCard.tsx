@@ -85,6 +85,10 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
           />
         )}
 
+        {/* Burning border: a flame-coloured line races around the edge on hover */}
+        <div aria-hidden="true" className="card-burn pointer-events-none absolute inset-0 z-20 rounded-[28px]" />
+        <div aria-hidden="true" className="card-burn card-burn-glow pointer-events-none absolute inset-0 z-20 rounded-[28px]" />
+
         {/* Visual */}
         <div
           className={cn(
