@@ -8,8 +8,15 @@ export const site = {
   title: "Aloke — AI Engineer & Full Stack Developer",
   description:
     "Portfolio of Aloke, an AI Engineer and Full Stack Developer building intelligent systems, AI applications, and interactive digital experiences.",
-  /** Set NEXT_PUBLIC_SITE_URL in production so OG/canonical URLs are absolute. */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  /**
+   * Absolute URL for OG/canonical links. Uses NEXT_PUBLIC_SITE_URL when set (empty counts as unset),
+   * then Vercel's production domain, then localhost.
+   */
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"),
   location: "Dublin, Ireland",
   available: true,
   links: {
