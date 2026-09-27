@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { ArrowUpRight, Maximize2 } from "lucide-react";
 import { useRef, type PointerEvent } from "react";
+import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectVisual } from "@/components/projects/ProjectVisual";
 import { GitHubIcon } from "@/components/ui/BrandIcons";
 import { ButtonLink } from "@/components/ui/Button";
@@ -96,7 +97,11 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
               className="h-full w-full transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
               style={interactive ? { x: visualX, y: visualY } : undefined}
             >
-              <ProjectVisual kind={project.visual} hue={project.hue} />
+              {project.cardUsesImage ? (
+                <ProjectCover project={project} sizes="(min-width: 768px) 60vw, 100vw" />
+              ) : (
+                <ProjectVisual kind={project.visual} hue={project.hue} />
+              )}
             </motion.div>
           </motion.div>
           <span className="absolute top-5 left-5 font-mono text-xs tracking-[0.2em] text-white/60">
