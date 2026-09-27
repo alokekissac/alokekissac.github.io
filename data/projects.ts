@@ -15,8 +15,8 @@ export type Project = {
   visual: ProjectVisual;
   /** Real screenshot in /public (shown instead of the drawn visual when present). */
   image?: { src: string; alt: string };
-  /** Also use the screenshot on the project card (otherwise the card shows the drawn visual). */
-  cardUsesImage?: boolean;
+  /** Screenshot for the project card (otherwise the card shows the drawn visual). */
+  cardImage?: string;
   /** Hue (0–360) used for the project's accent glow. */
   hue: number;
   year: Content;
@@ -150,7 +150,7 @@ export const projects: Project[] = [
     tech: ["Python", "Reinforcement Learning", "Gymnasium", "NumPy", "Flask", "Three.js"],
     visual: "rl",
     image: { src: "/projects/rl-traffic-signal-control.jpg", alt: "3D traffic intersection simulator controlled by a Q-learning agent" },
-    cardUsesImage: true,
+    cardImage: "/projects/rl-traffic-cover.jpg",
     hue: 190,
     year: "2026",
     githubUrl: `${GH}/RL-Traffic-Signal-Control`,
