@@ -99,15 +99,24 @@ function View({ data }: { data: GitHubData }) {
                 ? `${data.totalContributions.toLocaleString("en-IE")} contributions in the last year`
                 : sample
                   ? "Illustrative pattern"
-                  : "Add GITHUB_TOKEN to show the calendar"}
+                  : "Updated daily"}
             </p>
           </div>
           {data.contributions ? (
             <ContributionGrid days={data.contributions} sample={sample} />
+          ) : data.username ? (
+            // No API token: show the contribution graph generated daily by the profile repo's GitHub Action
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`https://raw.githubusercontent.com/${data.username}/${data.username}/output/github-contribution-grid-snake-dark.svg`}
+              alt={`GitHub contribution graph for ${data.username}`}
+              className="w-full"
+              loading="lazy"
+            />
           ) : (
             <p className="text-sm text-muted">Contribution calendar unavailable.</p>
           )}
-          <div className="mt-4 flex items-center justify-end gap-1.5 font-mono text-[10px] text-subtle" aria-hidden="true">
+          <div className={cn("mt-4 flex items-center justify-end gap-1.5 font-mono text-[10px] text-subtle", !data.contributions && "hidden")} aria-hidden="true">
             Less
             {LEVEL_CLASSES.map((c) => (
               <span key={c} className={cn("h-2.5 w-2.5 rounded-[3px]", c)} />

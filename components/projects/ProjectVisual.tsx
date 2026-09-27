@@ -122,6 +122,51 @@ export function ProjectVisual({ kind, hue }: { kind: VisualKind; hue: number }) 
           </g>
         </g>
       )}
+
+      {kind === "rl" && (
+        <g>
+          {/* Intersection with signals and queues */}
+          <rect x="170" y="0" width="60" height="300" fill="white" fillOpacity="0.05" />
+          <rect x="0" y="120" width="400" height="60" fill="white" fillOpacity="0.05" />
+          <line x1="200" y1="0" x2="200" y2="120" stroke="white" strokeOpacity="0.15" strokeDasharray="8 8" />
+          <line x1="0" y1="150" x2="170" y2="150" stroke="white" strokeOpacity="0.15" strokeDasharray="8 8" />
+          {[0, 1, 2].map((i) => (
+            <rect key={`ns${i}`} x="207" y={196 + i * 30} width="16" height="24" rx="4" fill={c(70, 0.85)} />
+          ))}
+          {[0, 1, 2, 3].map((i) => (
+            <rect key={`ew${i}`} x={140 - i * 32} y="157" width="24" height="16" rx="4" fill="white" fillOpacity="0.7" />
+          ))}
+          <g transform="translate(244 188)">
+            <rect width="14" height="36" rx="4" fill="#12121c" stroke="white" strokeOpacity="0.15" />
+            <circle cx="7" cy="9" r="4" fill="#ff5f57" fillOpacity="0.25" />
+            <circle cx="7" cy="27" r="4" fill={c(70)} />
+          </g>
+          {/* Q-value bars */}
+          <g transform="translate(270 40)">
+            <rect width="110" height="62" rx="10" fill="#12121c" stroke="white" strokeOpacity="0.1" />
+            <rect x="12" y="14" width="80" height="6" rx="3" fill={c(70, 0.9)} />
+            <rect x="12" y="28" width="56" height="6" rx="3" fill="white" fillOpacity="0.2" />
+            <rect x="12" y="42" width="40" height="4" rx="2" fill="white" fillOpacity="0.12" />
+          </g>
+        </g>
+      )}
+
+      {kind === "coverage" && (
+        <g>
+          {/* Street grid, covered streets and planned route */}
+          {[70, 130, 190, 250].map((y) => (
+            <line key={`h${y}`} x1="40" y1={y} x2="360" y2={y} stroke="white" strokeOpacity="0.1" strokeWidth="8" strokeLinecap="round" />
+          ))}
+          {[70, 150, 230, 310].map((x) => (
+            <line key={`v${x}`} x1={x} y1="40" x2={x} y2="270" stroke="white" strokeOpacity="0.1" strokeWidth="8" strokeLinecap="round" />
+          ))}
+          <path d="M70 250 V190 H150 V130 H70 V70" stroke={c(60, 0.95)} strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M70 70 H230 V190 H310 V250" stroke={c(80, 0.9)} strokeWidth="3" strokeDasharray="8 7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M50 55 L345 45 L355 265 L45 275 Z" fill="none" stroke={c(70, 0.35)} strokeDasharray="4 5" />
+          <circle cx="70" cy="70" r="7" fill="#fff" stroke={c(70)} strokeWidth="3" />
+          <circle cx="70" cy="70" r="16" fill={c(70, 0.15)} />
+        </g>
+      )}
     </svg>
   );
 }

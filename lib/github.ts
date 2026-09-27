@@ -1,10 +1,10 @@
 /**
  * GitHub data for the "Building in public" section.
  *
- * - Set GITHUB_USERNAME to load real public repositories (REST API, no token needed).
+ * - Loads real public repositories for GITHUB_USERNAME (default: alokekissac) via the REST API, no token needed.
  * - Also set GITHUB_TOKEN (read-only, no scopes) to load the real contribution calendar
  *   via the GraphQL API. The token is only ever used on the server.
- * - With nothing configured, the section renders clearly labelled SAMPLE data.
+ * - If the API is unreachable, the section falls back to clearly labelled SAMPLE data.
  */
 
 export type RepoSummary = {
@@ -114,7 +114,8 @@ async function fetchContributions(username: string, token: string) {
 }
 
 export async function getGitHubData(): Promise<GitHubData> {
-  const username = process.env.GITHUB_USERNAME?.trim();
+  // Defaults to the portfolio owner's account so real repositories show without extra configuration.
+  const username = process.env.GITHUB_USERNAME?.trim() || "alokekissac";
   const token = process.env.GITHUB_TOKEN?.trim();
   if (!username) return getSampleGitHubData();
 
@@ -135,6 +136,8 @@ export async function getGitHubData(): Promise<GitHubData> {
     const apiRepos = (await reposRes.json()) as ApiRepo[];
     const repos: RepoSummary[] = apiRepos
       .filter((r) => !r.fork && !r.archived)
+      // skip the profile README and the portfolio itself
+      .filter((r) => ![username.toLowerCase(), `${username.toLowerCase()}.github.io`].includes(r.name.toLowerCase()))
       .map((r) => ({
         name: r.name,
         description: r.description,
