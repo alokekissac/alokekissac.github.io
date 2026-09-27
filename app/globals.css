@@ -333,3 +333,13 @@
     background: linear-gradient(135deg, var(--burn-c), var(--burn-b), var(--burn-a));
   }
 }
+
+/* Buttons glow on hover in the flame colour (section colour, or the project's colour inside a card). */
+.btn-glow:hover,
+.btn-glow:focus-visible {
+  border-color: color-mix(in srgb, var(--glow, var(--color-accent)) 60%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--glow, var(--color-accent)) 45%, transparent),
+    0 0 18px color-mix(in srgb, var(--glow, var(--color-accent)) 40%, transparent),
+    0 8px 40px -8px color-mix(in srgb, var(--glow, var(--color-accent)) 65%, transparent);
+}

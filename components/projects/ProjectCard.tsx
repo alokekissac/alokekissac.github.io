@@ -61,6 +61,8 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
     "--burn-b": `hsl(${project.hue} 95% 62%)`,
     "--burn-c": `hsl(${(project.hue + 25) % 360} 85% 52%)`,
   } as CSSProperties;
+  // Buttons inside the card glow in the project's colour.
+  const glowVar = { "--glow": `hsl(${project.hue} 95% 62%)` } as CSSProperties;
   const titleId = `project-${project.slug}-title`;
 
   return (
@@ -77,7 +79,7 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={() => onOpen(project)}
-        style={interactive ? { rotateX, rotateY, transformStyle: "preserve-3d" } : undefined}
+        style={interactive ? { ...glowVar, rotateX, rotateY, transformStyle: "preserve-3d" } : glowVar}
         className="group relative grid cursor-pointer overflow-hidden rounded-[28px] border border-line bg-ink-2 transition-colors duration-500 hover:border-line-strong md:grid-cols-12"
       >
         {/* Pointer-following sheen */}
@@ -141,7 +143,7 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
             <button
               type="button"
               onClick={() => onOpen(project)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-fg px-5 text-sm font-medium text-ink transition-shadow duration-300 hover:shadow-[0_0_0_5px_rgb(142_162_255/0.2)]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-fg px-5 text-sm font-medium text-ink btn-glow transition-shadow duration-300"
               aria-label={`Open case study: ${project.title}`}
             >
               Case study <Maximize2 size={14} aria-hidden="true" />

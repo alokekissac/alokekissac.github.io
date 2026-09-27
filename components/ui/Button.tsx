@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 type Variant = "primary" | "ghost";
 
 const base =
-  "group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-full px-6 text-sm font-medium tracking-tight transition-[background-color,border-color,color,box-shadow] duration-300 ease-out-expo select-none";
+  "group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-full px-6 text-sm font-medium tracking-tight transition-[background-color,border-color,color,box-shadow] duration-300 ease-out-expo select-none btn-glow";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-fg text-ink hover:shadow-[0_0_0_6px_rgb(142_162_255/0.18),0_10px_40px_-10px_rgb(142_162_255/0.6)]",
+    "bg-fg text-ink",
   ghost: "hairline bg-white/[0.03] text-fg hover:border-line-strong hover:bg-white/[0.07]",
 };
 
@@ -19,7 +19,7 @@ type ButtonLinkProps = Omit<ComponentProps<"a">, "href"> & {
   variant?: Variant;
   icon?: ReactNode;
   magnetic?: boolean;
-  /** Treat as an external link (new tab, "OPEN ↗" cursor). */
+  /** Treat as an external link (opens in a new tab). */
   external?: boolean;
 };
 
@@ -58,7 +58,7 @@ export function ButtonLink({
     <a
       href={href}
       className={cn(base, variants[variant], className)}
-      {...(external ? { target: "_blank", rel: "noopener noreferrer", "data-cursor": "open" } : {})}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       {...rest}
     >
       {label}
