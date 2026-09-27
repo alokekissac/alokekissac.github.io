@@ -3,16 +3,16 @@ import { ProjectVisual } from "@/components/projects/ProjectVisual";
 import type { Project } from "@/data/projects";
 
 /** A real screenshot when the project has one, otherwise the code-drawn cover art. */
-export function ProjectCover({ project, sizes }: { project: Project; sizes: string }) {
+export function ProjectCover({ project, sizes, src }: { project: Project; sizes: string; src?: string }) {
   if (!project.image) return <ProjectVisual kind={project.visual} hue={project.hue} />;
   return (
     <div className="relative h-full w-full bg-[#0b0b12]">
       <Image
-        src={project.image.src}
+        src={src ?? project.image.src}
         alt={project.image.alt}
         fill
         sizes={sizes}
-        className="object-cover object-top"
+        className={src ? "object-cover object-center" : "object-cover object-top"}
       />
       {/* tint so screenshots sit inside the dark theme */}
       <div

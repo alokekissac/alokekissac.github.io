@@ -97,8 +97,8 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
               className="h-full w-full transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
               style={interactive ? { x: visualX, y: visualY } : undefined}
             >
-              {project.cardUsesImage ? (
-                <ProjectCover project={project} sizes="(min-width: 768px) 60vw, 100vw" />
+              {project.cardImage ? (
+                <ProjectCover project={project} src={project.cardImage} sizes="(min-width: 768px) 60vw, 100vw" />
               ) : (
                 <ProjectVisual kind={project.visual} hue={project.hue} />
               )}
