@@ -77,7 +77,6 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={() => onOpen(project)}
-        data-cursor="view"
         style={interactive ? { rotateX, rotateY, transformStyle: "preserve-3d" } : undefined}
         className="group relative grid cursor-pointer overflow-hidden rounded-[28px] border border-line bg-ink-2 transition-colors duration-500 hover:border-line-strong md:grid-cols-12"
       >
@@ -142,7 +141,6 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
             <button
               type="button"
               onClick={() => onOpen(project)}
-              data-cursor="view"
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-fg px-5 text-sm font-medium text-ink transition-shadow duration-300 hover:shadow-[0_0_0_5px_rgb(142_162_255/0.2)]"
               aria-label={`Open case study: ${project.title}`}
             >
