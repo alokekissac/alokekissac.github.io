@@ -44,6 +44,7 @@ export const projects: Project[] = [
     hue: 228,
     year: "2026",
     githubUrl: `${GH}/Advanced-RAG-System`,
+    liveUrl: "https://advanced-rag-system-steel.vercel.app/",
     overview:
       "A retrieval-augmented generation service that answers questions over a private document collection. Every sentence of an answer is cited to a retrieved passage, citations are verified against their source, and the system says so when the documents don't contain the answer.",
     problem:
@@ -283,6 +284,7 @@ export const projects: Project[] = [
     hue: 280,
     year: "2025",
     githubUrl: `${GH}/Smart-Travelogue`,
+    liveUrl: "https://smart-travelogue.vercel.app/",
     overview:
       "My BCA main project: a home for each trip. Travellers write a travelogue with photos, videos and YouTube links that others can browse for inspiration, and explore places, hotels and packages curated by an admin.",
     problem:
