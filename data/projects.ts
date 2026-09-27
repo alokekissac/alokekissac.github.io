@@ -195,6 +195,7 @@ export const projects: Project[] = [
     hue: 140,
     year: "2026",
     githubUrl: `${GH}/Covigo`,
+    liveUrl: "https://covigo.vercel.app/",
     overview:
       "A web app for canvassers, leaflet distributors and survey teams that need to cover every street in an area. Draw a zone, and Covigo plans a route through every walkable street, guides you with GPS and tracks what you've covered.",
     problem:
