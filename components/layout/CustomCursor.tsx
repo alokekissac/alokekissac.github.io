@@ -30,6 +30,18 @@ const THEMES: Record<string, Theme> = {
 };
 const SECTION_IDS = Object.keys(THEMES);
 
+/** HSL (deg, %, %) → #rrggbb */
+function hslHex(h: number, sPct: number, lPct: number) {
+  const s = sPct / 100;
+  const l = lPct / 100;
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return "#" + [f(0), f(8), f(4)].map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("");
+}
+/** Flame palette for a project card, from the card's hue (matches its burning border). */
+const hueTheme = (h: number): Theme => [hslHex(h, 95, 62), hslHex((h + 25) % 360, 85, 52), hslHex(h, 100, 80), hslHex(h, 100, 90)];
+
 const hexRgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 /** Ember colours in "r,g,b" form: white-hot, core, base, tip. */
 const emberSet = (t: Theme) => ["255,255,255", t[3], t[0], t[2]].map((c) => (c.startsWith("#") ? hexRgb(c).join(",") : c));
@@ -105,7 +117,7 @@ export function CustomCursor() {
     const applyTheme = (id: string) => {
       if (id === themeId) return;
       themeId = id;
-      const t = THEMES[id] ?? HOME;
+      const t = id.startsWith("hue:") ? hueTheme(Number(id.slice(4))) : (THEMES[id] ?? HOME);
       const el = rootRef.current;
       if (el) {
         el.style.setProperty("--f1", t[0]);
@@ -124,6 +136,13 @@ export function CustomCursor() {
       sections = SECTION_IDS.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
     };
     const detectSection = () => {
+      // Over a project card: take that card's own colour.
+      const under = document.elementFromPoint(target.x, target.y);
+      const card = under?.closest<HTMLElement>("[data-flame-hue]");
+      if (card) {
+        applyTheme(`hue:${card.dataset.flameHue}`);
+        return;
+      }
       if (!sections.length || !sections[0].isConnected) collectSections();
       let found = "home";
       for (const el of sections) {

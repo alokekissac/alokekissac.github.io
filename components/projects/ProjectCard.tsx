@@ -79,6 +79,7 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={() => onOpen(project)}
+        data-flame-hue={project.hue}
         style={interactive ? { ...glowVar, rotateX, rotateY, transformStyle: "preserve-3d" } : glowVar}
         className="group relative grid cursor-pointer overflow-hidden rounded-[28px] border border-line bg-ink-2 transition-colors duration-500 hover:border-line-strong md:grid-cols-12"
       >
