@@ -6,10 +6,8 @@ import { cn } from "@/lib/utils";
 
 type CursorState = "default" | "hover" | "view" | "open" | "text" | "hidden";
 
-const LABELS: Partial<Record<CursorState, string>> = {
-  view: "VIEW →",
-  open: "OPEN ↗",
-};
+/** No text labels: links and buttons glow themselves instead (see .btn-glow). */
+const LABELS: Partial<Record<CursorState, string>> = {};
 
 const INTERACTIVE = "a, button, [role='button'], [role='link'], summary, label, select, [data-cursor='hover']";
 
@@ -41,12 +39,12 @@ function resolveState(target: EventTarget | null): CursorState {
   const explicit = target.closest<HTMLElement>("[data-cursor]");
   if (explicit) {
     const value = explicit.dataset.cursor;
-    if (value === "view" || value === "open" || value === "hover" || value === "hidden") return value;
+    if (value === "hidden") return value;
+    if (value === "view" || value === "open" || value === "hover") return "hover";
   }
   if (target.closest("input, textarea, [contenteditable='true']")) return "text";
   const interactive = target.closest(INTERACTIVE);
   if (interactive) {
-    if (interactive instanceof HTMLAnchorElement && interactive.target === "_blank") return "open";
     return "hover";
   }
   return "default";
@@ -115,6 +113,8 @@ export function CustomCursor() {
         el.style.setProperty("--f3", t[2]);
         el.style.setProperty("--fi", t[3]);
       }
+      // Buttons outside project cards glow in the current section's flame colour.
+      document.documentElement.style.setProperty("--glow", t[0]);
       emberColors = emberSet(t);
       tailRgb = hexRgb(t[0]).join(",");
       tailCore = hexRgb(t[3]).join(",");
@@ -302,7 +302,7 @@ export function CustomCursor() {
             label
               ? "border-transparent bg-fg text-ink"
               : hover
-                ? "cursor-ring-hover"
+                ? "scale-50 border-transparent opacity-0"
                 : "cursor-ring-idle border-transparent",
           )}
           style={{ width: ringSize, height: ringSize }}
