@@ -36,67 +36,6 @@ const GH = "https://github.com/alokekissac";
 
 export const projects: Project[] = [
   {
-    slug: "advanced-rag-system",
-    title: "Advanced RAG System",
-    description:
-      "Trustworthy question answering over private documents: hybrid retrieval, cited answers, abstention and prompt-injection guardrails, measured with an evaluation harness.",
-    tech: ["Python", "FastAPI", "RAG", "Embeddings", "Vector Search", "BM25", "Gemini", "pytest"],
-    visual: "rag",
-    image: { src: "/projects/advanced-rag-system.jpg", alt: "Advanced RAG System: a cited answer with the retrieved evidence panel" },
-    hue: 228,
-    year: "2026",
-    githubUrl: `${GH}/Advanced-RAG-System`,
-    liveUrl: "https://advanced-rag-system-steel.vercel.app/",
-    overview:
-      "A retrieval-augmented generation service that answers questions over a private document collection. Every sentence of an answer is cited to a retrieved passage, citations are verified against their source, and the system says so when the documents don't contain the answer.",
-    problem:
-      "LLMs answer fluently but can't see private documents, and when they don't know something they still produce a confident answer. Documents can also contain instructions aimed at the model. For internal knowledge, an answer is only useful if it can be traced to a source and the system knows when to stay silent.",
-    solution:
-      "Documents are chunked by heading and indexed twice: BM25 for exact terms and numbers, and dense embeddings for meaning. The two rankings are fused with Reciprocal Rank Fusion and diversified with MMR. Guardrails screen retrieved text for prompt injection and score how well the evidence covers the question; low coverage means abstaining. Answers come from Gemini with a grounded prompt, or from an extractive answerer that quotes sources when no key is set. The whole pipeline sits behind a FastAPI service with a web UI.",
-    architecture: [
-      {
-        title: "Ingestion",
-        steps: [
-          { label: "Documents", detail: "PDF, Markdown, text" },
-          { label: "Chunking", detail: "Heading-aware, with overlap" },
-          { label: "Index", detail: "BM25 + dense embeddings" },
-          { label: "Vector store", detail: "Cosine similarity" },
-        ],
-      },
-      {
-        title: "Query",
-        steps: [
-          { label: "Question", detail: "FastAPI · optional multi-query rewrite" },
-          { label: "Hybrid retrieval", detail: "RRF fusion + MMR" },
-          { label: "Guardrails", detail: "Injection screen · confidence gate" },
-          { label: "Generation", detail: "Gemini or extractive, cited" },
-          { label: "Verification", detail: "Citations checked against sources" },
-        ],
-      },
-    ],
-    features: [
-      "Hybrid retrieval: BM25 and embeddings fused with Reciprocal Rank Fusion, diversified with MMR",
-      "Every answer sentence cited, and each citation verified against the source text",
-      "Abstains (\u201cI couldn't find this in the documents\u201d) when evidence doesn't cover the question",
-      "Detects and strips prompt-injection text hidden in documents, and warns the user",
-      "Works with Gemini (LLM answers, embeddings, query rewriting) or fully offline",
-      "Web UI with an evidence panel, retrieval-mode switch and bring-your-own-documents upload",
-      "Evaluation harness plus 21 pytest tests",
-    ],
-    challenges: [
-      "Calibrating when to abstain: coverage is IDF-weighted so a question hinging on a word no document contains scores low, and the threshold was chosen on a dev split and reported on a held-out test split.",
-      "Paraphrases: local embeddings can't learn that \u201ccomputer\u201d means \u201claptop\u201d from a small corpus, so the system abstains rather than guessing. Gemini embeddings and query rewriting close that gap.",
-      "Keeping it deployable on serverless: small dependencies, a fast in-memory index, and graceful fallback to BM25 when the embedding API is unavailable.",
-    ],
-    results: [
-      "95.7% answer accuracy on held-out test questions (extractive mode, no LLM)",
-      "100% correct abstentions on questions the documents don't answer",
-      "100% of cited sentences supported by their cited source",
-      "Prompt-injection test document detected and ignored",
-      "About 2 ms per question to retrieve and answer on the demo corpus",
-    ],
-  },
-  {
     slug: "ai-waste-management",
     title: "AI-Powered Landfill Waste Forecasting",
     description:
@@ -190,48 +129,64 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "covigo",
-    title: "Covigo: Coverage Navigator",
+    slug: "advanced-rag-system",
+    title: "Advanced RAG System",
     description:
-      "Walk every street in an area and miss none: route planning over OpenStreetMap, GPS turn-by-turn guidance and a Gemini voice assistant.",
-    tech: ["JavaScript", "Leaflet", "OpenStreetMap", "Gemini", "PWA", "Vercel"],
-    visual: "coverage",
-    hue: 140,
+      "Trustworthy question answering over private documents: hybrid retrieval, cited answers, abstention and prompt-injection guardrails, measured with an evaluation harness.",
+    tech: ["Python", "FastAPI", "RAG", "Embeddings", "Vector Search", "BM25", "Gemini", "pytest"],
+    visual: "rag",
+    image: { src: "/projects/advanced-rag-system.jpg", alt: "Advanced RAG System: a cited answer with the retrieved evidence panel" },
+    hue: 228,
     year: "2026",
-    githubUrl: `${GH}/Covigo`,
-    liveUrl: "https://covigo.vercel.app/",
+    githubUrl: `${GH}/Advanced-RAG-System`,
+    liveUrl: "https://advanced-rag-system-steel.vercel.app/",
     overview:
-      "A web app for canvassers, leaflet distributors and survey teams that need to cover every street in an area. Draw a zone, and Covigo plans a route through every walkable street, guides you with GPS and tracks what you've covered.",
+      "A retrieval-augmented generation service that answers questions over a private document collection. Every sentence of an answer is cited to a retrieved passage, citations are verified against their source, and the system says so when the documents don't contain the answer.",
     problem:
-      "Ordinary navigation apps route you from A to B. Covering every street in a zone without doubling back or missing any is a different problem, and people doing it usually rely on paper maps and memory.",
+      "LLMs answer fluently but can't see private documents, and when they don't know something they still produce a confident answer. Documents can also contain instructions aimed at the model. For internal knowledge, an answer is only useful if it can be traced to a source and the system knows when to stay silent.",
     solution:
-      "Streets are pulled from the Overpass API and turned into an intersection graph. A greedy planner orders them with a sweep direction and dead-end priority. A bearing-based engine gives turn-by-turn instructions, GPS points mark streets done, and progress is saved offline. A serverless function proxies Gemini so the API key never reaches the browser.",
+      "Documents are chunked by heading and indexed twice: BM25 for exact terms and numbers, and dense embeddings for meaning. The two rankings are fused with Reciprocal Rank Fusion and diversified with MMR. Guardrails screen retrieved text for prompt injection and score how well the evidence covers the question; low coverage means abstaining. Answers come from Gemini with a grounded prompt, or from an extractive answerer that quotes sources when no key is set. The whole pipeline sits behind a FastAPI service with a web UI.",
     architecture: [
       {
-        title: "Flow",
+        title: "Ingestion",
         steps: [
-          { label: "Draw zone", detail: "Leaflet.Draw" },
-          { label: "Streets", detail: "Overpass API" },
-          { label: "Route plan", detail: "Graph + greedy heuristic" },
-          { label: "Navigation", detail: "GPS · turn-by-turn" },
-          { label: "Assistant", detail: "Gemini via serverless proxy" },
+          { label: "Documents", detail: "PDF, Markdown, text" },
+          { label: "Chunking", detail: "Heading-aware, with overlap" },
+          { label: "Index", detail: "BM25 + dense embeddings" },
+          { label: "Vector store", detail: "Cosine similarity" },
+        ],
+      },
+      {
+        title: "Query",
+        steps: [
+          { label: "Question", detail: "FastAPI · optional multi-query rewrite" },
+          { label: "Hybrid retrieval", detail: "RRF fusion + MMR" },
+          { label: "Guardrails", detail: "Injection screen · confidence gate" },
+          { label: "Generation", detail: "Gemini or extractive, cited" },
+          { label: "Verification", detail: "Citations checked against sources" },
         ],
       },
     ],
     features: [
-      "Route planning over every walkable street, with sweep direction and dead-end priority",
-      "Turn-by-turn guidance and automatic street completion from GPS",
-      "Missed-street alerts, live coverage stats and time-left estimates",
-      "Offline progress (IndexedDB) and cached map tiles (service worker)",
-      "Gemini assistant with voice input that knows your live session",
+      "Hybrid retrieval: BM25 and embeddings fused with Reciprocal Rank Fusion, diversified with MMR",
+      "Every answer sentence cited, and each citation verified against the source text",
+      "Abstains (\u201cI couldn't find this in the documents\u201d) when evidence doesn't cover the question",
+      "Detects and strips prompt-injection text hidden in documents, and warns the user",
+      "Works with Gemini (LLM answers, embeddings, query rewriting) or fully offline",
+      "Web UI with an evidence panel, retrieval-mode switch and bring-your-own-documents upload",
+      "Evaluation harness plus 21 pytest tests",
     ],
     challenges: [
-      "Exact coverage routing is the NP-hard Rural Postman Problem, so a fast greedy heuristic keeps planning instant in the browser for hundreds of streets.",
-      "Keeping the Gemini key server-side with a same-origin proxy, input limits and escaped output.",
+      "Calibrating when to abstain: coverage is IDF-weighted so a question hinging on a word no document contains scores low, and the threshold was chosen on a dev split and reported on a held-out test split.",
+      "Paraphrases: local embeddings can't learn that \u201ccomputer\u201d means \u201claptop\u201d from a small corpus, so the system abstains rather than guessing. Gemini embeddings and query rewriting close that gap.",
+      "Keeping it deployable on serverless: small dependencies, a fast in-memory index, and graceful fallback to BM25 when the embedding API is unavailable.",
     ],
     results: [
-      "Plans routes for hundreds of streets instantly, entirely in the browser",
-      "No build step: one HTML file plus a serverless function",
+      "95.7% answer accuracy on held-out test questions (extractive mode, no LLM)",
+      "100% correct abstentions on questions the documents don't answer",
+      "100% of cited sentences supported by their cited source",
+      "Prompt-injection test document detected and ignored",
+      "About 2 ms per question to retrieve and answer on the demo corpus",
     ],
   },
   {
@@ -275,6 +230,51 @@ export const projects: Project[] = [
       "Integrating the chatbot, translation layer and database so they shared one consistent user record.",
     ],
     results: ["Deployed with fictional Kerala demo data and demo accounts for each role"],
+  },
+  {
+    slug: "covigo",
+    title: "Covigo: Coverage Navigator",
+    description:
+      "Walk every street in an area and miss none: route planning over OpenStreetMap, GPS turn-by-turn guidance and a Gemini voice assistant.",
+    tech: ["JavaScript", "Leaflet", "OpenStreetMap", "Gemini", "PWA", "Vercel"],
+    visual: "coverage",
+    hue: 140,
+    year: "2026",
+    githubUrl: `${GH}/Covigo`,
+    liveUrl: "https://covigo.vercel.app/",
+    overview:
+      "A web app for canvassers, leaflet distributors and survey teams that need to cover every street in an area. Draw a zone, and Covigo plans a route through every walkable street, guides you with GPS and tracks what you've covered.",
+    problem:
+      "Ordinary navigation apps route you from A to B. Covering every street in a zone without doubling back or missing any is a different problem, and people doing it usually rely on paper maps and memory.",
+    solution:
+      "Streets are pulled from the Overpass API and turned into an intersection graph. A greedy planner orders them with a sweep direction and dead-end priority. A bearing-based engine gives turn-by-turn instructions, GPS points mark streets done, and progress is saved offline. A serverless function proxies Gemini so the API key never reaches the browser.",
+    architecture: [
+      {
+        title: "Flow",
+        steps: [
+          { label: "Draw zone", detail: "Leaflet.Draw" },
+          { label: "Streets", detail: "Overpass API" },
+          { label: "Route plan", detail: "Graph + greedy heuristic" },
+          { label: "Navigation", detail: "GPS · turn-by-turn" },
+          { label: "Assistant", detail: "Gemini via serverless proxy" },
+        ],
+      },
+    ],
+    features: [
+      "Route planning over every walkable street, with sweep direction and dead-end priority",
+      "Turn-by-turn guidance and automatic street completion from GPS",
+      "Missed-street alerts, live coverage stats and time-left estimates",
+      "Offline progress (IndexedDB) and cached map tiles (service worker)",
+      "Gemini assistant with voice input that knows your live session",
+    ],
+    challenges: [
+      "Exact coverage routing is the NP-hard Rural Postman Problem, so a fast greedy heuristic keeps planning instant in the browser for hundreds of streets.",
+      "Keeping the Gemini key server-side with a same-origin proxy, input limits and escaped output.",
+    ],
+    results: [
+      "Plans routes for hundreds of streets instantly, entirely in the browser",
+      "No build step: one HTML file plus a serverless function",
+    ],
   },
   {
     slug: "smart-travelogue",
