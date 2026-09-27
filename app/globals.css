@@ -139,6 +139,8 @@
 @property --f3 { syntax: "<color>"; inherits: true; initial-value: #b69cff; }
 @property --fi { syntax: "<color>"; inherits: true; initial-value: #c9d1ff; }
 
+@property --burn-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
 @layer components {
   .container-x {
     width: 100%;
@@ -282,3 +284,52 @@
 }
 .rise-in { animation: rise-in 0.8s var(--ease-out-expo) both; }
 .word-up { animation: word-up 0.8s var(--ease-out-expo) both; }
+
+/* Project card "catches fire" on hover — Projects-section flame colours. */
+.card-burn {
+  --burn-a: #ffe0f5;
+  --burn-b: #ff7ad9;
+  --burn-c: #b44cff;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--burn-angle),
+    transparent 0deg,
+    transparent 150deg,
+    color-mix(in srgb, var(--burn-c) 70%, transparent) 215deg,
+    var(--burn-b) 300deg,
+    var(--burn-a) 345deg,
+    #fff 355deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 500ms ease;
+  animation: card-burn-spin 3.2s linear infinite;
+  animation-play-state: paused;
+}
+.card-burn-glow {
+  padding: 5px;
+  filter: blur(7px);
+}
+.group:hover > .card-burn {
+  opacity: 1;
+  animation-play-state: running;
+}
+.group:hover > .card-burn-glow {
+  opacity: 0.8;
+}
+@keyframes card-burn-spin {
+  to { --burn-angle: 360deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-burn {
+    animation: none;
+    background: linear-gradient(135deg, var(--burn-c), var(--burn-b), var(--burn-a));
+  }
+}

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, CircleAlert, CircleCheck, LoaderCircle } from "lucide-react";
 import { useId, useState, type ChangeEvent, type FocusEvent, type FormEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { TypingSparks } from "@/components/ui/TypingSparks";
 import { LIMITS, validateContact, validateField, type ContactErrors, type ContactInput } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 
@@ -115,7 +116,7 @@ export function ContactForm() {
   const describedBy = (field: keyof ContactInput) => (errors[field] ? `${uid}-${field}-error` : undefined);
 
   return (
-    <div className="relative">
+    <TypingSparks>
       <AnimatePresence mode="wait">
         {status.kind === "success" ? (
           <motion.div
@@ -255,6 +256,6 @@ export function ContactForm() {
           </motion.form>
         )}
       </AnimatePresence>
-    </div>
+    </TypingSparks>
   );
 }
