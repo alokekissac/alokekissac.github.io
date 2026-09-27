@@ -12,7 +12,7 @@ export function ProjectCover({ project, sizes, src }: { project: Project; sizes:
         alt={project.image.alt}
         fill
         sizes={sizes}
-        className={src ? "object-cover object-center" : "object-cover object-top"}
+        className="object-cover object-top"
       />
       {/* tint so screenshots sit inside the dark theme */}
       <div
