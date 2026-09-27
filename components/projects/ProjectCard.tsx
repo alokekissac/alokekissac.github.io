@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { ArrowUpRight, Maximize2 } from "lucide-react";
-import { useRef, type PointerEvent } from "react";
+import { useRef, type CSSProperties, type PointerEvent } from "react";
 import { ProjectCover } from "@/components/projects/ProjectCover";
 import { ProjectVisual } from "@/components/projects/ProjectVisual";
 import { GitHubIcon } from "@/components/ui/BrandIcons";
@@ -56,6 +56,11 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
   };
 
   const reversed = index % 2 === 1;
+  const burnVars = {
+    "--burn-a": `hsl(${project.hue} 100% 88%)`,
+    "--burn-b": `hsl(${project.hue} 95% 62%)`,
+    "--burn-c": `hsl(${(project.hue + 25) % 360} 85% 52%)`,
+  } as CSSProperties;
   const titleId = `project-${project.slug}-title`;
 
   return (
@@ -85,9 +90,9 @@ export function ProjectCard({ project, index, total, onOpen }: ProjectCardProps)
           />
         )}
 
-        {/* Burning border: a flame-coloured line races around the edge on hover */}
-        <div aria-hidden="true" className="card-burn pointer-events-none absolute inset-0 z-20 rounded-[28px]" />
-        <div aria-hidden="true" className="card-burn card-burn-glow pointer-events-none absolute inset-0 z-20 rounded-[28px]" />
+        {/* Burning border: a line in this project's own colour races around the edge on hover */}
+        <div aria-hidden="true" className="card-burn pointer-events-none absolute inset-0 z-20 rounded-[28px]" style={burnVars} />
+        <div aria-hidden="true" className="card-burn card-burn-glow pointer-events-none absolute inset-0 z-20 rounded-[28px]" style={burnVars} />
 
         {/* Visual */}
         <div

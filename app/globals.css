@@ -285,7 +285,7 @@
 .rise-in { animation: rise-in 0.8s var(--ease-out-expo) both; }
 .word-up { animation: word-up 0.8s var(--ease-out-expo) both; }
 
-/* Project card "catches fire" on hover — Projects-section flame colours. */
+/* Project card "catches fire" on hover. Colours are set per card from the project's hue. */
 .card-burn {
   --burn-a: #ffe0f5;
   --burn-b: #ff7ad9;
