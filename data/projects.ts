@@ -150,7 +150,7 @@ export const projects: Project[] = [
     tech: ["Python", "Reinforcement Learning", "Gymnasium", "NumPy", "Flask", "Three.js"],
     visual: "rl",
     image: { src: "/projects/rl-traffic-signal-control.jpg", alt: "3D traffic intersection simulator controlled by a Q-learning agent" },
-    cardImage: "/projects/rl-traffic-cover.jpg",
+    cardImage: "/projects/rl-traffic-city3.jpg",
     hue: 190,
     year: "2026",
     githubUrl: `${GH}/RL-Traffic-Signal-Control`,
