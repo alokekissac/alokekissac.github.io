@@ -242,7 +242,7 @@ export const projects: Project[] = [
     hue: 32,
     year: "2025",
     githubUrl: `${GH}/AI-Tour-Planner`,
-    liveUrl: "https://ai-tour-planner-ucc3.vercel.app/",
+    liveUrl: "https://ai-tour-planner-7uzv.vercel.app/",
     overview:
       "A tourism platform built during my full-stack internship at Rizz Technologies. Tour providers publish places and packages, admins review them, local guides pin useful spots, and travellers discover, book, pay for and review tours from an Android app.",
     problem:
