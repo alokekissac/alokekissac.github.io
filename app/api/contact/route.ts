@@ -6,7 +6,7 @@ import { validateContact, type ContactInput } from "@/lib/validation";
  *
  * To deliver messages by email, set:
  *   RESEND_API_KEY     — API key from https://resend.com
- *   CONTACT_TO_EMAIL   — where messages should arrive
+ *   CONTACT_TO_EMAIL   — optional; where messages should arrive (defaults to the site email)
  *   CONTACT_FROM_EMAIL — optional verified sender (defaults to Resend's test sender)
  *
  * Without these, messages are logged to the server console in development and the
@@ -28,6 +28,9 @@ function rateLimited(ip: string) {
   entry.count += 1;
   return entry.count > MAX_PER_WINDOW;
 }
+
+// Messages go to the portfolio's own inbox unless CONTACT_TO_EMAIL overrides it.
+const DEFAULT_TO = "alokekissac@gmail.com";
 
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
@@ -59,7 +62,7 @@ export async function POST(request: Request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL;
+  const to = process.env.CONTACT_TO_EMAIL || DEFAULT_TO;
 
   if (!apiKey || !to) {
     if (process.env.NODE_ENV !== "production") {
