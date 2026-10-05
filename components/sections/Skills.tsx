@@ -48,7 +48,7 @@ export function Skills() {
         <div className="lg:col-span-5">
           <SectionHeading
             id="skills-title"
-            index="02"
+            index="03"
             label="Skills"
             title={["A connected", "toolkit"]}
             accentWords={["connected"]}

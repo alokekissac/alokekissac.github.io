@@ -16,7 +16,7 @@ export function Lab() {
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <SectionHeading
             id="lab-title"
-            index="04"
+            index="01"
             label="Live lab"
             title={["Train an AI", "right here"]}
             accentWords={["AI"]}

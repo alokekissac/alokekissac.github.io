@@ -126,9 +126,9 @@ export function Hero() {
           </dl>
 
           <a
-            href="#about"
+            href="#lab"
             className="group mx-auto flex flex-col items-center gap-3 text-subtle transition-colors hover:text-fg md:mx-0"
-            aria-label="Scroll to About section"
+            aria-label="Scroll to the Lab section"
           >
             <span className="eyebrow !text-[10px]">Scroll</span>
             <span className="flex h-10 w-6 justify-center rounded-full border border-line-strong pt-2" aria-hidden="true">
