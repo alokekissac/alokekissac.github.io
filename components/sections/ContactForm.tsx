@@ -59,6 +59,32 @@ const inputClass = (invalid: boolean) =>
     invalid ? "border-rose-400/60 focus:border-rose-400" : "border-line hover:border-line-strong focus:border-accent/60",
   );
 
+/** Inbox for the keyless fallback. FormSubmit asks the owner to confirm this address once. */
+const FALLBACK_INBOX = "alokekissac@gmail.com";
+
+async function sendViaFormSubmit(values: ContactInput): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const res = await fetch(`https://formsubmit.co/ajax/${FALLBACK_INBOX}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        name: values.name,
+        email: values.email,
+        message: values.message,
+        _replyto: values.email,
+        _subject: `Portfolio message from ${values.name}`,
+        _template: "table",
+        _captcha: "false",
+      }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { success?: string | boolean; message?: string };
+    if (res.ok && String(data.success) === "true") return { ok: true };
+    return { ok: false, error: "Couldn't send right now. Please email me directly at " + FALLBACK_INBOX + "." };
+  } catch {
+    return { ok: false, error: "Network error — check your connection and try again." };
+  }
+}
+
 export function ContactForm() {
   const uid = useId();
   const [values, setValues] = useState<ContactInput>(EMPTY);
@@ -99,6 +125,19 @@ export function ContactForm() {
         body: JSON.stringify({ ...values, company: honeypot }),
       });
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; errors?: ContactErrors; simulated?: boolean };
+      // No email key on the server: deliver through FormSubmit straight from the browser instead.
+      if (res.status === 503) {
+        const fallback = await sendViaFormSubmit(values);
+        if (fallback.ok) {
+          setStatus({ kind: "success" });
+          setValues(EMPTY);
+          setTouched({});
+          setErrors({});
+        } else {
+          setStatus({ kind: "error", message: fallback.error });
+        }
+        return;
+      }
       if (!res.ok || !data.ok) {
         if (data.errors) setErrors(data.errors);
         setStatus({ kind: "error", message: data.error ?? "Something went wrong. Please try again." });
