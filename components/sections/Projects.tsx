@@ -20,7 +20,7 @@ export function Projects() {
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <SectionHeading
             id="projects-title"
-            index="03"
+            index="04"
             label="Selected work"
             title={["Things I've", "built"]}
             accentWords={["built"]}

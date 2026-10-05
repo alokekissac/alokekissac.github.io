@@ -36,7 +36,7 @@ export function About() {
         <div className="lg:col-span-7">
           <Reveal y={12}>
             <p className="eyebrow flex items-center gap-3">
-              <span className="text-accent">01</span>
+              <span className="text-accent">02</span>
               <span className="h-px w-8 bg-line-strong" aria-hidden="true" />
               {aboutIntro.eyebrow}
             </p>

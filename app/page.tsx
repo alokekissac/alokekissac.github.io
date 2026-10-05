@@ -29,10 +29,10 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Hero />
+      <Lab />
       <About />
       <Skills />
       <Projects />
-      <Lab />
       <HowIBuild />
       <Journey />
       <GitHubActivity />
