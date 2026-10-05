@@ -28,8 +28,8 @@ export const site = {
 
 export const navItems: NavItem[] = [
   { id: "home", label: "Home" },
-  { id: "lab", label: "Lab" },
   { id: "about", label: "About" },
+  { id: "lab", label: "Lab" },
   { id: "skills", label: "Skills" },
   { id: "projects", label: "Projects" },
   { id: "journey", label: "Journey" },
