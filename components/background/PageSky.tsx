@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 
 /**
  * Whole-page sky behind every section, running a full day as you scroll:
- * night → dawn → day → sunset → night. The sun crosses the sky, clouds drift
- * by at midday, and a city skyline lights up as night returns.
+ * night → dawn → day → sunset → night. The moon sets, the sun crosses the sky,
+ * clouds drift by at midday, and a city skyline lights up as night returns.
  * Updated in rAF from scroll position; nothing re-renders.
  */
 
@@ -14,15 +14,15 @@ type Key = { p: number; top: RGB; mid: RGB; glow: RGB; a: number };
 
 // p = page scroll progress (0 top → 1 bottom): night → dawn → day → sunset → night
 const KEYS: Key[] = [
-  { p: 0.0, top: [6, 6, 10], mid: [6, 6, 10], glow: [70, 80, 190], a: 0 },
+  { p: 0.0, top: [6, 6, 10], mid: [6, 6, 10], glow: [70, 80, 190], a: 0.05 },
   { p: 0.12, top: [8, 8, 20], mid: [12, 12, 30], glow: [110, 90, 220], a: 0.12 },
   { p: 0.22, top: [14, 14, 34], mid: [50, 28, 48], glow: [255, 140, 90], a: 0.38 },
   { p: 0.32, top: [16, 30, 64], mid: [22, 40, 78], glow: [255, 200, 140], a: 0.28 },
   { p: 0.45, top: [18, 38, 82], mid: [24, 48, 92], glow: [190, 210, 255], a: 0.26 },
   { p: 0.6, top: [16, 32, 70], mid: [26, 40, 80], glow: [255, 200, 130], a: 0.26 },
   { p: 0.72, top: [20, 16, 40], mid: [70, 30, 60], glow: [255, 110, 90], a: 0.42 },
-  { p: 0.82, top: [10, 9, 22], mid: [24, 16, 40], glow: [150, 90, 220], a: 0.08 },
-  { p: 1.0, top: [6, 6, 10], mid: [8, 8, 16], glow: [70, 80, 190], a: 0 },
+  { p: 0.82, top: [10, 9, 22], mid: [24, 16, 40], glow: [150, 90, 220], a: 0.18 },
+  { p: 1.0, top: [6, 6, 10], mid: [8, 8, 16], glow: [70, 80, 190], a: 0.06 },
 ];
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -49,11 +49,17 @@ function rng(seed: number) {
 
 export function PageSky() {
   const skyRef = useRef<HTMLDivElement>(null);
+  const starsRef = useRef<HTMLDivElement>(null);
+  const moonRef = useRef<HTMLDivElement>(null);
   const sunRef = useRef<HTMLDivElement>(null);
   const cityRef = useRef<HTMLDivElement>(null);
   const cloudsRef = useRef<HTMLDivElement>(null);
   const windowsRef = useRef<SVGGElement>(null);
 
+  const stars = useMemo(() => {
+    const r = rng(11);
+    return Array.from({ length: 110 }, () => ({ x: r() * 100, y: r() * 100, s: 0.6 + r() * 1.5, d: r() * 5, big: r() < 0.08 }));
+  }, []);
 
   const city = useMemo(() => {
     const r = rng(42);
@@ -85,8 +91,28 @@ export function PageSky() {
         sky.style.setProperty("--sky-mid", `rgb(${s.mid})`);
         sky.style.setProperty("--sky-glow", `rgba(${s.glow},${s.a.toFixed(3)})`);
       }
+      // Stars: out at night (top and bottom of the page), gone in the day.
+      if (starsRef.current) {
+        starsRef.current.style.opacity = String(Math.max(1 - ramp(p, 0.08, 0.2), ramp(p, 0.78, 0.9)));
+        starsRef.current.style.transform = `translate3d(0, ${(-p * 60).toFixed(1)}px, 0)`;
+      }
       let gx = 75;
       let gy = 30;
+      // Moon: sets at the start of the page, rises again at the end.
+      if (moonRef.current) {
+        const m = ramp(p, 0, 0.16);
+        const n = ramp(p, 0.8, 1);
+        const late = p >= 0.5;
+        const x = late ? 14 + n * 22 : 76 + m * 14;
+        const y = late ? 86 - n * 62 : 18 + m * 72;
+        moonRef.current.style.left = `${x}%`;
+        moonRef.current.style.top = `${y}%`;
+        moonRef.current.style.opacity = String(late ? ramp(p, 0.8, 0.87) : 1 - ramp(p, 0.1, 0.17));
+        if (p < 0.12 || p > 0.84) {
+          gx = x;
+          gy = y;
+        }
+      }
       // Sun: rises on the left, crosses the sky, sets on the right.
       if (sunRef.current) {
         const sp = ramp(p, 0.17, 0.77);
@@ -126,12 +152,22 @@ export function PageSky() {
 
   return (
     <div ref={skyRef} aria-hidden="true" className="page-sky pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div ref={starsRef} className="absolute -inset-y-16 inset-x-0 will-change-transform">
+        {stars.map((st, i) => (
+          <span
+            key={i}
+            className={st.big ? "sky-star sky-star-big" : "sky-star"}
+            style={{ left: `${st.x}%`, top: `${st.y}%`, width: st.s, height: st.s, animationDelay: `${st.d}s` }}
+          />
+        ))}
+      </div>
       <div ref={cloudsRef} className="absolute inset-0 opacity-0 will-change-transform">
         <span className="sky-cloud" style={{ left: "12%", top: "16%", width: 420, height: 90 }} />
         <span className="sky-cloud" style={{ left: "58%", top: "10%", width: 520, height: 110 }} />
         <span className="sky-cloud" style={{ left: "88%", top: "28%", width: 380, height: 80 }} />
         <span className="sky-cloud" style={{ left: "34%", top: "34%", width: 300, height: 70 }} />
       </div>
+      <div ref={moonRef} className="sky-moon absolute opacity-0" />
       <div ref={sunRef} className="sky-sun absolute opacity-0" />
 
       <div ref={cityRef} className="absolute inset-x-0 bottom-0 opacity-0">
