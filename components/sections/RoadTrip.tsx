@@ -166,6 +166,7 @@ export function RoadTrip({ entries }: { entries: TimelineEntry[] }) {
         {/* Car */}
         <div ref={carRef} aria-hidden="true" className="pointer-events-none absolute top-0 left-0 z-20 will-change-transform" style={{ transformOrigin: "0 0" }}>
           <div className="journey-car">
+            <span className="journey-headlight-glow" aria-hidden="true" />
             <svg viewBox="0 0 120 44" width="84" height="31">
               <defs>
                 <linearGradient id="beam" x1="0" x2="1">
@@ -177,9 +178,11 @@ export function RoadTrip({ entries }: { entries: TimelineEntry[] }) {
                   <stop offset="1" stopColor="var(--journey-2)" />
                 </linearGradient>
               </defs>
-              {/* headlight beams (car faces +x) */}
-              <path d="M58 13 L120 0 L120 20 Z" fill="url(#beam)" />
-              <path d="M58 31 L120 24 L120 44 Z" fill="url(#beam)" />
+              {/* headlight beams (car faces +x) — brighter as the page sky gets darker */}
+              <g className="journey-beams">
+                <path d="M58 13 L120 0 L120 20 Z" fill="url(#beam)" />
+                <path d="M58 31 L120 24 L120 44 Z" fill="url(#beam)" />
+              </g>
               {/* body */}
               <rect x="6" y="8" width="54" height="28" rx="9" fill="url(#body)" />
               {/* cabin / windows */}
