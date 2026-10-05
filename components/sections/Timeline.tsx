@@ -12,10 +12,15 @@ const kindMeta: Record<TimelineKind, { label: string; icon: LucideIcon }> = {
   education: { label: "Education", icon: GraduationCap },
 };
 
-function EntryCard({ entry }: { entry: TimelineEntry }) {
+export function EntryCard({ entry, arrived = false }: { entry: TimelineEntry; arrived?: boolean }) {
   const { label, icon: Icon } = kindMeta[entry.kind];
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-line bg-ink-2 p-6 transition-colors duration-500 hover:border-line-strong md:p-7">
+    <div
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border bg-ink-2 p-6 transition-[border-color,box-shadow] duration-700 hover:border-line-strong md:p-7",
+        arrived ? "journey-arrived border-transparent" : "border-line",
+      )}
+    >
       <span
         aria-hidden="true"
         className="pointer-events-none absolute -top-20 -right-20 h-48 w-48 rounded-full bg-accent/10 opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-100"

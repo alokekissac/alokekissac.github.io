@@ -343,3 +343,35 @@
     0 0 18px color-mix(in srgb, var(--glow, var(--color-accent)) 40%, transparent),
     0 8px 40px -8px color-mix(in srgb, var(--glow, var(--color-accent)) 65%, transparent);
 }
+
+/* ---- Road-trip journey ---- */
+#journey {
+  --journey: #ffd36b;
+  --journey-2: #f0a030;
+}
+.journey-car {
+  translate: -27.5% -50%;
+  scale: 0.72;
+  transform-origin: 27.5% 50%;
+  filter: drop-shadow(0 0 6px rgb(255 211 107 / 0.55));
+}
+.journey-stop {
+  fill: #0f0f17;
+  stroke: rgb(255 255 255 / 0.35);
+  stroke-width: 2;
+  transition: r 400ms var(--ease-out-expo), stroke 400ms, filter 400ms;
+}
+.journey-stop.is-reached {
+  stroke: var(--journey);
+  filter: drop-shadow(0 0 6px var(--journey));
+}
+.journey-arrived {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--journey) 55%, transparent),
+    0 0 32px -6px color-mix(in srgb, var(--journey) 45%, transparent);
+}
+@media (min-width: 768px) {
+  .journey-car {
+    scale: 1;
+  }
+}

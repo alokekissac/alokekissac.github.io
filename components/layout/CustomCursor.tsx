@@ -23,8 +23,8 @@ const THEMES: Record<string, Theme> = {
   skills: ["#b69cff", "#8b5cf6", "#e0b3ff", "#ecdcff"],
   projects: ["#ff7ad9", "#b44cff", "#ffb3ec", "#ffe0f5"],
   process: ["#ffb547", "#ff5a2d", "#ffd98a", "#fff1c9"],
-  experience: ["#2dd4bf", "#0ea5a0", "#99f6e4", "#d5fff8"],
-  education: ["#ffd36b", "#f0a030", "#fff0b3", "#fff8e0"],
+  lab: ["#5ecbff", "#3a8dff", "#9fe8ff", "#d6f4ff"],
+  journey: ["#ffd36b", "#f0a030", "#fff0b3", "#fff8e0"],
   github: ["#5ee6b8", "#22b36a", "#a8ffe0", "#dcfff1"],
   contact: HOME,
 };

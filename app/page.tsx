@@ -1,11 +1,11 @@
 import { Footer } from "@/components/layout/Footer";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
-import { Education } from "@/components/sections/Education";
-import { Experience } from "@/components/sections/Experience";
 import { GitHubActivity } from "@/components/sections/GitHubActivity";
 import { Hero } from "@/components/sections/Hero";
 import { HowIBuild } from "@/components/sections/HowIBuild";
+import { Journey } from "@/components/sections/Journey";
+import { Lab } from "@/components/sections/Lab";
 import { Projects } from "@/components/sections/Projects";
 import { Skills } from "@/components/sections/Skills";
 import { site } from "@/data/site";
@@ -32,9 +32,9 @@ export default function Home() {
       <About />
       <Skills />
       <Projects />
+      <Lab />
       <HowIBuild />
-      <Experience />
-      <Education />
+      <Journey />
       <GitHubActivity />
       <Contact />
       <Footer />
