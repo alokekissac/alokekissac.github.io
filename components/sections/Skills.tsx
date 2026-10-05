@@ -1,8 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
-import { useMemo, useState, type CSSProperties } from "react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
+import { ArrowUpRight, Moon, Sun, Sunrise, Sunset } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { DaySky, type DaySkyHandle } from "@/components/skills/DaySky";
 import { Reveal } from "@/components/animations/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { projects } from "@/data/projects";
@@ -17,6 +18,21 @@ const RINGS: { categories: SkillCategoryId[]; radius: number; duration: number; 
   { categories: ["frontend", "backend"], radius: 0.34, duration: 150, reverse: true },
   { categories: ["ai", "tools"], radius: 0.47, duration: 190, reverse: false },
 ];
+
+/** A day in the life: as you scroll, the clock runs 06:00 → 24:00 and each part of the day lights up the skills it uses. */
+const DAY: { from: number; label: string; caption: string; filter: Filter; icon: typeof Sun }[] = [
+  { from: 6, label: "Morning", caption: "Coffee, git pull, plan the day.", filter: "tools", icon: Sunrise },
+  { from: 9, label: "Deep work", caption: "Writing Python and the core logic.", filter: "languages", icon: Sun },
+  { from: 12.5, label: "Afternoon", caption: "Training models and tuning RAG pipelines.", filter: "ai", icon: Sun },
+  { from: 15.5, label: "Shipping", caption: "Wiring APIs, databases and deploys.", filter: "backend", icon: Sun },
+  { from: 18.5, label: "Evening", caption: "Polishing interfaces, like this one.", filter: "frontend", icon: Sunset },
+  { from: 21.5, label: "Night", caption: "Side projects, papers and automations.", filter: "all", icon: Moon },
+];
+const phaseAt = (h: number) => DAY.reduce((acc, p, i) => (h >= p.from ? i : acc), 0);
+const fmt = (h: number) => {
+  const mins = Math.min(23 * 60 + 55, Math.round((h * 60) / 5) * 5);
+  return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+};
 
 const projectsFor = (skill: Skill) =>
   projects.filter((p) => p.tech.some((t) => t.toLowerCase() === skill.name.toLowerCase()));
@@ -38,13 +54,38 @@ export function Skills() {
 
   const isDimmed = (s: Skill) => filter !== "all" && s.category !== filter;
 
+  // ---- Day cycle, driven by scroll through the (pinned on desktop) section
+  const sectionRef = useRef<HTMLElement>(null);
+  const skyRef = useRef<DaySkyHandle>(null);
+  const timeRef = useRef<HTMLSpanElement>(null);
+  const [phase, setPhase] = useState(0);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
+  const applyHour = (p: number) => {
+    const h = 6 + Math.max(0, Math.min(1, p)) * 18;
+    skyRef.current?.setHour(h);
+    if (timeRef.current) timeRef.current.textContent = fmt(h);
+    const next = phaseAt(h);
+    setPhase((prev) => (prev === next ? prev : next));
+  };
+  useMotionValueEvent(scrollYProgress, "change", applyHour);
+  useEffect(() => {
+    applyHour(scrollYProgress.get());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // On desktop, each part of the day highlights its skills (clicking a filter still works).
+  useEffect(() => {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+    choose(DAY[phase].filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+  const PhaseIcon = DAY[phase].icon;
+
   return (
-    <section id="skills" aria-labelledby="skills-title" className="relative py-24 md:py-32">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-1/3 -z-10 h-[60vh] bg-[radial-gradient(50%_50%_at_70%_50%,rgb(142_162_255/0.08),transparent)]"
-      />
-      <div className="container-x grid items-center gap-14 lg:grid-cols-12">
+    <section id="skills" ref={sectionRef} aria-labelledby="skills-title" className="relative lg:h-[280vh]">
+      <div className="relative py-24 md:py-32 lg:sticky lg:top-0 lg:flex lg:h-screen lg:items-center lg:py-0 lg:pt-16">
+      <DaySky ref={skyRef} />
+
+      <div className="container-x relative z-10 grid w-full items-center gap-14 lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-5">
           <SectionHeading
             id="skills-title"
@@ -52,9 +93,37 @@ export function Skills() {
             label="Skills"
             title={["A connected", "toolkit"]}
             accentWords={["connected"]}
-            description="Languages, frameworks and tools I use — grouped by where they sit in a system. Pick a category or hover a node to see how each one is used."
-            className="!mb-10"
+            description="A day in my life, in skills. Scroll to run the clock, or pick a category and hover a node to see how each one is used."
+            className="!mb-8"
           />
+
+          {/* Clock: a day in the life */}
+          <div className="mb-6 flex items-center gap-4 rounded-2xl border border-line bg-ink/40 p-4 backdrop-blur-md">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line-strong text-[var(--day-accent,#ffd36b)]">
+              <PhaseIcon size={18} aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="flex items-baseline gap-2">
+                <span ref={timeRef} className="font-mono text-2xl text-fg tabular-nums">06:00</span>
+                <span className="eyebrow">{DAY[phase].label}</span>
+              </p>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={phase}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25 }}
+                  className="truncate text-sm text-muted"
+                >
+                  {DAY[phase].caption}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+            <span className="ml-auto hidden font-mono text-[10px] tracking-[0.14em] text-subtle uppercase lg:block">
+              Scroll ↓
+            </span>
+          </div>
 
           {/* Filters */}
           <Reveal delay={0.1}>
@@ -130,7 +199,7 @@ export function Skills() {
 
         {/* Orbit visual (md and up) */}
         <div className="lg:col-span-7">
-          <Reveal className="orbit relative mx-auto hidden aspect-square w-full max-w-[680px] md:block" y={40}>
+          <Reveal className="orbit relative mx-auto hidden aspect-square w-full max-w-[min(680px,74vh)] md:block" y={40}>
             <div aria-hidden="true" className="absolute inset-0">
               {RINGS.map((ring) => (
                 <div
@@ -250,6 +319,7 @@ export function Skills() {
             </AnimatePresence>
           </motion.ul>
         </div>
+      </div>
       </div>
     </section>
   );

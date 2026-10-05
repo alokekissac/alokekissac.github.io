@@ -375,3 +375,49 @@
     scale: 1;
   }
 }
+
+/* ---- Skills: day/night sky ---- */
+.day-sky {
+  --sky-top: rgb(14 10 28);
+  --sky-glow: rgb(255 138 92 / 0.26);
+  --glow-x: 10%;
+  background:
+    radial-gradient(45% 55% at var(--glow-x) var(--glow-y, 80%), var(--sky-glow), transparent 70%),
+    radial-gradient(90% 40% at 50% 100%, var(--sky-glow), transparent 70%),
+    linear-gradient(to bottom, var(--sky-top), var(--color-ink) 85%);
+}
+.day-sun {
+  width: 90px;
+  height: 90px;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff7e0 0 18%, rgb(255 210 140 / 0.55) 30%, rgb(255 170 90 / 0.18) 50%, transparent 70%);
+  filter: blur(0.5px);
+}
+.day-moon {
+  width: 34px;
+  height: 34px;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  box-shadow: inset -9px -3px 0 0 #e9ecff;
+  filter: drop-shadow(0 0 14px rgb(200 210 255 / 0.55));
+  rotate: -20deg;
+}
+.day-star {
+  animation: star-twinkle 3.2s ease-in-out infinite alternate;
+}
+@keyframes star-twinkle {
+  from { opacity: 0.25; }
+  to { opacity: 0.95; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .day-star { animation: none; opacity: 0.7; }
+}
+/* Keep the skyline behind the orbit, away from the text column */
+.day-city {
+  -webkit-mask-image: linear-gradient(to right, transparent 0 38%, #000 58%);
+  mask-image: linear-gradient(to right, transparent 0 38%, #000 58%);
+}
+@media (max-width: 1023px) {
+  .day-city { -webkit-mask-image: none; mask-image: none; }
+}
