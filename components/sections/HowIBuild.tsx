@@ -67,7 +67,7 @@ export function HowIBuild() {
           <div className="lg:sticky lg:top-32">
             <SectionHeading
               id="process-title"
-              index="04"
+              index="05"
               label="Process"
               title={["How I", "build"]}
               accentWords={["build"]}
