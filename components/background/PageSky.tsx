@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { heroEnd, nightness, useWeather } from "@/lib/sky";
 
 /**
  * Whole-page sky behind every section, running a full day as you scroll:
@@ -55,6 +56,10 @@ export function PageSky() {
   const cityRef = useRef<HTMLDivElement>(null);
   const cloudsRef = useRef<HTMLDivElement>(null);
   const windowsRef = useRef<SVGGElement>(null);
+  const birdsRef = useRef<HTMLDivElement>(null);
+  const planeRef = useRef<HTMLDivElement>(null);
+  const rainRef = useRef<HTMLCanvasElement>(null);
+  const weather = useWeather();
 
   const stars = useMemo(() => {
     const r = rng(11);
@@ -138,6 +143,19 @@ export function PageSky() {
         cloudsRef.current.style.opacity = String(ramp(p, 0.25, 0.35) * (1 - ramp(p, 0.62, 0.72)));
         cloudsRef.current.style.transform = `translate3d(${(-p * 240).toFixed(1)}px, 0, 0)`;
       }
+      // Birds cross at sunrise and again at sunset.
+      if (birdsRef.current) {
+        const dawn = ramp(p, 0.17, 0.21) * (1 - ramp(p, 0.33, 0.38));
+        const dusk = ramp(p, 0.64, 0.68) * (1 - ramp(p, 0.76, 0.8));
+        birdsRef.current.style.opacity = String(Math.max(dawn, dusk));
+      }
+      // A plane blinks across the night sky (never over the hero).
+      if (planeRef.current) {
+        const h0 = heroEnd();
+        planeRef.current.style.opacity = String(Math.max(ramp(p, h0, h0 + 0.02) * (1 - ramp(p, 0.13, 0.17)), ramp(p, 0.8, 0.86)));
+      }
+      // Shared darkness for other parts of the page (e.g. the Journey car's headlights).
+      document.documentElement.style.setProperty("--night", nightness(p).toFixed(3));
       // Skyline at dusk; windows light up as night falls.
       if (cityRef.current) cityRef.current.style.opacity = String(ramp(p, 0.66, 0.76));
       if (windowsRef.current) windowsRef.current.style.opacity = String(0.05 + ramp(p, 0.74, 0.86) * 0.8);
@@ -154,6 +172,61 @@ export function PageSky() {
       window.removeEventListener("resize", onScroll);
     };
   }, []);
+
+  // Rain: light streaks drawn on a canvas while the visitor has rain switched on.
+  useEffect(() => {
+    if (weather !== "rain") return;
+    const canvas = rainRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let dpr = 1;
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    const W = () => window.innerWidth;
+    const H = () => window.innerHeight;
+    const drops = Array.from({ length: Math.round(Math.min(220, W() / 6)) }, () => ({
+      x: Math.random() * W(),
+      y: Math.random() * H(),
+      l: 10 + Math.random() * 16,
+      v: 9 + Math.random() * 8,
+      a: 0.2 + Math.random() * 0.3,
+    }));
+    let raf = 0;
+    const draw = () => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W(), H());
+      ctx.lineCap = "round";
+      ctx.lineWidth = 1;
+      for (const d of drops) {
+        ctx.strokeStyle = `rgba(190,205,255,${d.a})`;
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - d.l * 0.18, d.y + d.l);
+        ctx.stroke();
+        if (!reduce) {
+          d.y += d.v;
+          d.x -= d.v * 0.18;
+          if (d.y > H()) {
+            d.y = -d.l;
+            d.x = Math.random() * (W() + 60);
+          }
+        }
+      }
+      if (!reduce) raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+  }, [weather]);
 
   return (
     <div ref={skyRef} aria-hidden="true" className="page-sky pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -173,7 +246,42 @@ export function PageSky() {
         <span className="sky-cloud" style={{ left: "34%", top: "34%", width: 300, height: 70 }} />
       </div>
       <div ref={moonRef} className="sky-moon absolute opacity-0" />
+
+      {/* Birds */}
+      <div ref={birdsRef} className="absolute inset-x-0 top-[18%] h-24 opacity-0">
+        <div className="sky-flock">
+          {[
+            [0, 18, 1],
+            [26, 6, 0.85],
+            [30, 30, 0.8],
+            [54, 0, 0.7],
+            [58, 40, 0.7],
+            [84, 12, 0.6],
+          ].map(([x, y, sc], i) => (
+            <svg key={i} className="sky-bird" style={{ left: x, top: y, scale: String(sc), animationDelay: `${i * 0.13}s` }} width="30" height="14" viewBox="0 0 22 10">
+              <path d="M1 3 Q6 0 11 6 Q16 0 21 3" fill="none" stroke="rgb(235 238 255 / 0.65)" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          ))}
+        </div>
+      </div>
+
+      {/* Plane with blinking navigation lights */}
+      <div ref={planeRef} className="absolute inset-x-0 top-[12%] opacity-0">
+        <div className="sky-plane">
+          <span className="sky-plane-body" />
+          <span className="sky-plane-light sky-plane-red" />
+          <span className="sky-plane-light sky-plane-white" />
+        </div>
+      </div>
       <div ref={sunRef} className="sky-sun absolute opacity-0" />
+
+      {/* Weather */}
+      <canvas ref={rainRef} className={weather === "rain" ? "absolute inset-0 h-full w-full" : "hidden"} />
+      <div className={weather === "mist" ? "sky-mist absolute inset-0" : "hidden"}>
+        <span />
+        <span />
+        <span />
+      </div>
 
       <div ref={cityRef} className="absolute inset-x-0 bottom-0 opacity-0">
         <svg className="h-[80px] w-full md:h-[110px]" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMax slice">
