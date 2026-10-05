@@ -1,3 +1,4 @@
+import { PageSky } from "@/components/background/PageSky";
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <PageSky />
         <Providers>
           <Navbar />
           <main id="main" className="overflow-x-clip">{children}</main>
