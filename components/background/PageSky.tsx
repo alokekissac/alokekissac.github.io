@@ -98,17 +98,22 @@ export function PageSky() {
       }
       let gx = 75;
       let gy = 30;
-      // Moon: sets at the start of the page, rises again at the end.
+      // Moon: hidden over the hero's wormhole; appears once you scroll past it and sinks
+      // towards sunrise. Rises again at the end of the page.
       if (moonRef.current) {
-        const m = ramp(p, 0, 0.16);
+        const hero = document.getElementById("home");
+        const h0 = hero && max > 0 ? Math.min(0.12, (hero.offsetHeight * 0.85) / max) : 0.08;
+        const m = ramp(p, h0, 0.22);
         const n = ramp(p, 0.8, 1);
         const late = p >= 0.5;
-        const x = late ? 14 + n * 22 : 76 + m * 14;
-        const y = late ? 86 - n * 62 : 18 + m * 72;
+        const x = late ? 14 + n * 22 : 80 + m * 8;
+        const y = late ? 86 - n * 62 : 14 + m * 74;
         moonRef.current.style.left = `${x}%`;
         moonRef.current.style.top = `${y}%`;
-        moonRef.current.style.opacity = String(late ? ramp(p, 0.8, 0.87) : 1 - ramp(p, 0.1, 0.17));
-        if (p < 0.12 || p > 0.84) {
+        moonRef.current.style.opacity = String(
+          late ? ramp(p, 0.8, 0.87) : ramp(p, h0, h0 + 0.025) * (1 - ramp(p, 0.18, 0.22)),
+        );
+        if ((p > h0 && p < 0.12) || p > 0.84) {
           gx = x;
           gy = y;
         }
