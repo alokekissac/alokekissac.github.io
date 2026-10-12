@@ -167,6 +167,32 @@ export function ProjectVisual({ kind, hue }: { kind: VisualKind; hue: number }) 
           <circle cx="70" cy="70" r="16" fill={c(70, 0.15)} />
         </g>
       )}
+      {kind === "rent" && (
+        <g>
+          {/* Illustrative rent history and forecast band, not real data */}
+          {[0, 1, 2, 3].map((i) => (
+            <line key={i} x1="50" y1={80 + i * 50} x2="360" y2={80 + i * 50} stroke="white" strokeOpacity="0.06" />
+          ))}
+          <path d="M260 120 C 290 104, 320 88, 350 70 L 350 140 C 320 136, 290 132, 260 120 Z" fill={c(60, 0.18)} />
+          <path
+            d="M55 225 C 85 220, 100 214, 125 205 S 165 188, 190 170 S 235 140, 260 120"
+            stroke={c(70, 0.95)}
+            strokeWidth="2.5"
+            fill="none"
+          />
+          <path d="M260 120 C 290 112, 320 104, 350 98" stroke={c(80, 0.9)} strokeWidth="2.5" strokeDasharray="5 6" fill="none" />
+          <line x1="260" y1="55" x2="260" y2="240" stroke="white" strokeOpacity="0.15" strokeDasharray="2 4" />
+          <circle cx="260" cy="120" r="5" fill={c(75)} />
+          <line x1="50" y1="241" x2="360" y2="241" stroke="white" strokeOpacity="0.15" />
+          {/* House marker */}
+          <g transform="translate(78 62)">
+            <rect width="78" height="52" rx="10" fill="#12121c" stroke="white" strokeOpacity="0.1" />
+            <path d="M14 30 L26 19 L38 30 V40 H14 Z" fill="none" stroke={c(75)} strokeWidth="2" strokeLinejoin="round" />
+            <rect x="46" y="20" width="20" height="5" rx="2.5" fill="white" fillOpacity="0.5" />
+            <rect x="46" y="32" width="14" height="4" rx="2" fill={c(70, 0.8)} />
+          </g>
+        </g>
+      )}
     </svg>
   );
 }

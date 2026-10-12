@@ -1,6 +1,6 @@
 import type { Content } from "@/lib/content";
 
-export type ProjectVisual = "rag" | "waste" | "tour" | "travelogue" | "rl" | "coverage";
+export type ProjectVisual = "rag" | "waste" | "tour" | "travelogue" | "rl" | "coverage" | "rent";
 
 export type ArchitectureLane = {
   title: string;
@@ -35,6 +35,64 @@ export type Project = {
 const GH = "https://github.com/alokekissac";
 
 export const projects: Project[] = [
+  {
+    slug: "rentcast-ireland",
+    title: "RentCast Ireland",
+    description:
+      "12-month rent forecasts for every RTB-tracked area in Ireland, with calibrated uncertainty ranges, SHAP explanations, what-if scenarios and an affordability finder.",
+    tech: ["Python", "LightGBM", "SHAP", "MLflow", "FastAPI", "React", "TypeScript", "Plotly"],
+    visual: "rent",
+    image: { src: "/projects/rentcast-ireland.jpg", alt: "RentCast Ireland county map of forecast rents" },
+    hue: 330,
+    year: "2026",
+    githubUrl: `${GH}/irish-rent-predictor`,
+    liveUrl: "https://rentcast-ireland.vercel.app/",
+    overview:
+      "An end-to-end forecasting project for Ireland's rental market. It turns the official RTB Rent Index and the Property Price Register into area-level 12-month rent forecasts, with an honest range around each one, and serves them through a REST API and an interactive dashboard.",
+    problem:
+      "Average Irish rents have more than doubled since 2011, but the public data only says what rents were, not where they are heading. Renters, policy analysts and housing bodies need forward-looking, area-level estimates, and they need to know how uncertain those estimates are.",
+    solution:
+      "Rent and property-sale data are pulled from public APIs, cleaned and mapped from 437 areas to counties. A LightGBM model predicts each series' 12-month log change in rent from leakage-safe momentum and market features, quantile models with conformalized quantile regression give calibrated ranges, and SHAP explains each forecast. Training exports everything to JSON for a static React site on Vercel, and a FastAPI service serves forecasts on demand.",
+    architecture: [
+      {
+        title: "Data",
+        steps: [
+          { label: "RTB Rent Index", detail: "CSO PxStat API" },
+          { label: "Property Price Register", detail: "809K sales" },
+          { label: "Transform", detail: "437 areas mapped to counties" },
+          { label: "Features", detail: "Leakage-safe lags + market signals" },
+        ],
+      },
+      {
+        title: "Model & serving",
+        steps: [
+          { label: "LightGBM", detail: "12-month log rent change" },
+          { label: "Intervals", detail: "Quantiles + conformal (CQR)" },
+          { label: "Tracking", detail: "MLflow · monthly retrain" },
+          { label: "Serving", detail: "FastAPI · React on Vercel" },
+        ],
+      },
+    ],
+    features: [
+      "Forecasts for 7,490 rent series by area, bedrooms and property type",
+      "County map with drill-down to towns and neighbourhoods, animated from 2008 to today",
+      "\u201cWhy this forecast?\u201d SHAP breakdown and what-if sliders that re-run the model",
+      "Affordability finder: enter take-home pay and see where you can afford, now and in 12 months",
+      "Past forecasts overlaid on what actually happened, plus a backtest explorer",
+      "FastAPI service, MLflow tracking, Docker, CI and a monthly retraining workflow",
+    ],
+    challenges: [
+      "Feature importance is not predictive value: Property Price Register features rank second by gain, yet an ablation showed removing them makes no difference out of sample, so features are validated with ablations.",
+      "Conformal guarantees assume exchangeability: 2024\u201325 behaved differently from the 2023 calibration year, so coverage still falls short of the 80% target.",
+      "Real-world data drift: the RTB retired Dublin postal-district series in favour of neighbourhood areas and suppresses thin quarters, so every location is validated against a county mapping.",
+    ],
+    results: [
+      "3.77% MAPE (\u20ac54/month) on 26,065 unseen backtest forecasts",
+      "52% lower error than a naive baseline and 28% lower than momentum",
+      "Conformal calibration lifted 80%-interval coverage from 66.6% to 74.4%",
+      "Live static dashboard on Vercel, with no server to sleep",
+    ],
+  },
   {
     slug: "ai-waste-management",
     title: "AI-Powered Landfill Waste Forecasting",

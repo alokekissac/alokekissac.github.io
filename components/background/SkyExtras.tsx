@@ -14,6 +14,7 @@ const FACTS = [
   "At Rizz Technologies I owned the backend, recommendation model and database of a tour-planning platform.",
   "My first internship was building an Android app in Flutter at SoftLoom IT Solutions.",
   "Covigo plans a route to walk every street in an area, with GPS turn-by-turn guidance.",
+  "RentCast Ireland forecasts rents 12 months ahead for every RTB-tracked area in Ireland.",
   "The flame cursor changes colour to match each section and each project.",
   "This page runs a full day: night at the top, daylight in the middle, night again at the bottom.",
 ];
